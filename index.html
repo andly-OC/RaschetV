@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Калькулятор тока по РТМ 36.18.32.4-92</title>
+    <title>Расчёт тока по РТМ 36.18.32.4-92 + ползунок</title>
     <style>
         * {
             box-sizing: border-box;
@@ -120,8 +120,18 @@
             font-size: 0.9rem;
             margin-top: -10px;
         }
-
-        /* Таблица ввода */
+        .comparison {
+            margin-top: 10px;
+            font-size: 1.1rem;
+            background: #eef2f7;
+            padding: 10px 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .comparison span {
+            font-weight: 700;
+            color: #667eea;
+        }
         .input-section {
             margin: 30px 0;
             overflow-x: auto;
@@ -278,12 +288,12 @@
 <body>
 <div class="card">
     <h1>⚡ Расчёт тока по РТМ 36.18.32.4-92 ⚡</h1>
-    <div class="subtitle">Шаг 1: ползунок для справки | Шаг 2: расчёт I<sub>р</sub> по методике</div>
+    <div class="subtitle">Все расчёты из методички + ползунок влияет на сравнение</div>
 
-    <!-- Блок с ползунком (сохранён из предыдущей версии) -->
+    <!-- Блок с ползунком (теперь влияет на сравнение) -->
     <div class="slider-container">
         <div class="slider-label">
-            <span>Сила тока (справочно):</span>
+            <span>Заданный ток I<sub>зад</sub> (для сравнения):</span>
             <div class="value-edit">
                 <input type="number" id="currentInput" min="0.1" max="2500" step="0.1" value="0.1">
                 <span class="unit">А</span>
@@ -294,6 +304,9 @@
             <span>0.1 А</span>
             <span>1250 А</span>
             <span>2500 А</span>
+        </div>
+        <div class="comparison" id="comparison">
+            Расчётный I<sub>р</sub> пока не рассчитан. Нажмите "Рассчитать".
         </div>
     </div>
 
@@ -348,7 +361,7 @@
     </div>
 
     <div class="note">
-        ⚙️ Расчёт выполняется по РТМ 36.18.32.4-92. Для питающих сетей используется табл.1, для магистральных шинопроводов – табл.2. При n<sub>э</sub> > 1000 K<sub>р</sub> принимается равным 1.
+        ⚙️ Расчёт выполняется по РТМ 36.18.32.4-92. Ползунок задаёт произвольный ток I<sub>зад</sub>; после расчёта I<sub>р</sub> сравнение обновляется автоматически при движении ползунка.
     </div>
 </div>
 
@@ -356,6 +369,9 @@
     // ---------- Синхронизация ползунка (из предыдущей версии) ----------
     const slider = document.getElementById('currentSlider');
     const input = document.getElementById('currentInput');
+    const comparisonDiv = document.getElementById('comparison');
+
+    let lastIp = null; // для хранения последнего рассчитанного Iр
 
     function formatValue(val) {
         return Math.round(val * 10) / 10;
@@ -364,6 +380,7 @@
         let val = parseFloat(slider.value);
         val = formatValue(val);
         input.value = val;
+        updateComparison();
     }
     function updateSliderFromInput() {
         let rawValue = input.value.trim();
@@ -377,6 +394,7 @@
         if (num > max) num = max;
         slider.value = num;
         input.value = num;
+        updateComparison();
     }
     slider.addEventListener('input', updateInputFromSlider);
     input.addEventListener('input', updateSliderFromInput);
@@ -385,13 +403,22 @@
         if (isNaN(val)) input.value = slider.value;
         else updateSliderFromInput();
     });
-    updateInputFromSlider();
+
+    // Функция обновления сравнения
+    function updateComparison() {
+        const zad = parseFloat(input.value);
+        if (lastIp !== null && !isNaN(lastIp) && lastIp > 0) {
+            const ratio = zad / lastIp;
+            comparisonDiv.innerHTML = `Заданный ток <span>${zad.toFixed(1)} А</span> | Расчётный I<sub>р</sub> = <span>${lastIp.toFixed(2)} А</span> | Отношение I<sub>зад</sub>/I<sub>р</sub> = <span>${ratio.toFixed(2)}</span>`;
+        } else {
+            comparisonDiv.innerHTML = `Заданный ток: ${zad.toFixed(1)} А. Расчётный I<sub>р</sub> пока не рассчитан.`;
+        }
+    }
 
     // ---------- Таблица ввода ЭП ----------
     const tableBody = document.getElementById('epTableBody');
     const addRowBtn = document.getElementById('addRowBtn');
 
-    // Функция создания строки таблицы
     function createRow(name = '', n = 1, pn = 1.0, ku = 0.14, cosφ = 0.5) {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -416,10 +443,7 @@
     });
 
     // ---------- Таблицы коэффициентов Kр ----------
-    // Таблица 1 для питающих сетей (Tо=10 мин). Дискретные значения n_э для интерполяции.
-    // Столбцы для K_u: 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8
     const kpTable1 = {
-        // n_э : [0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
         1:   [8.00, 5.33, 4.00, 2.67, 2.00, 1.60, 1.33, 1.14, 1.02],
         2:   [6.22, 4.33, 3.39, 2.45, 1.98, 1.60, 1.33, 1.14, 1.03],
         3:   [4.05, 2.89, 2.31, 1.74, 1.45, 1.34, 1.22, 1.14, 1.04],
@@ -446,10 +470,7 @@
         1000:[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
     };
 
-    // Таблица 2 для магистральных шинопроводов (Tо=2,5 ч). Диапазоны n_э.
-    // Столбцы для K_u: 0.1,0.15,0.2,0.3,0.4,0.5,0.6,0.7+
     const kpTable2 = {
-        // ключ - строка с описанием диапазона, значение - массив Kp для K_u в указанном порядке
         '1':     [8.00, 5.33, 4.00, 2.67, 2.00, 1.60, 1.33, 1.14],
         '2':     [5.01, 3.44, 2.69, 1.90, 1.52, 1.24, 1.11, 1.03],
         '3':     [2.94, 2.17, 1.80, 1.42, 1.23, 1.14, 1.08, 1.04],
@@ -462,13 +483,9 @@
         '>50':   [0.65, 0.65, 0.65, 0.70, 0.70, 0.75, 0.80, 0.80]
     };
 
-    // Функция получения Kp для питающей сети (табл.1) с интерполяцией по n_э и K_u
     function getKpSupply(n_eff, ku) {
         const kuValues = [0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8];
-        // Если n_э больше максимального в таблице (1000), возвращаем 1
         if (n_eff >= 1000) return 1.0;
-
-        // Находим ближайшие n_э из ключей таблицы
         const nKeys = Object.keys(kpTable1).map(Number).sort((a,b) => a-b);
         let lowerN = null, upperN = null;
         for (let i = 0; i < nKeys.length; i++) {
@@ -477,11 +494,8 @@
         }
         if (lowerN === null) lowerN = nKeys[0];
         if (upperN === null) upperN = nKeys[nKeys.length-1];
-
-        // Интерполяция по столбцам K_u
         function getKpForN(n) {
             const row = kpTable1[n];
-            // Интерполяция по ku
             if (ku <= kuValues[0]) return row[0];
             if (ku >= kuValues[kuValues.length-1]) return row[row.length-1];
             for (let j = 0; j < kuValues.length-1; j++) {
@@ -492,19 +506,15 @@
             }
             return row[row.length-1];
         }
-
         const kpLow = getKpForN(lowerN);
         const kpHigh = getKpForN(upperN);
         if (lowerN === upperN) return kpLow;
-        // Интерполяция по n_э
         const t = (n_eff - lowerN) / (upperN - lowerN);
         return kpLow * (1 - t) + kpHigh * t;
     }
 
-    // Функция получения Kp для магистральных шинопроводов (табл.2)
     function getKpMain(n_eff, ku) {
-        const kuValues = [0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]; // для 0.7 и выше используем последний столбец
-        // Определяем диапазон
+        const kuValues = [0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7];
         let rangeKey = '>50';
         if (n_eff === 1) rangeKey = '1';
         else if (n_eff === 2) rangeKey = '2';
@@ -516,11 +526,8 @@
         else if (n_eff > 10 && n_eff <= 25) rangeKey = '10-25';
         else if (n_eff > 25 && n_eff <= 50) rangeKey = '25-50';
         else if (n_eff > 50) rangeKey = '>50';
-
         const row = kpTable2[rangeKey];
         if (!row) return 1.0;
-
-        // Выбор столбца по ku
         if (ku <= kuValues[0]) return row[0];
         if (ku >= kuValues[kuValues.length-1]) return row[row.length-1];
         for (let j = 0; j < kuValues.length-1; j++) {
@@ -539,24 +546,21 @@
         let sumKuPn = 0;
         let sumKuPnTg = 0;
         let sumNPn2 = 0;
-        let maxPn = 0;          // максимальная мощность одного ЭП (для проверки Pр)
-        let minPn = Infinity;   // минимальная мощность одного ЭП
-        let totalN = 0;         // суммарное количество ЭП
+        let maxPn = 0;
+        let minPn = Infinity;
+        let totalN = 0;
 
-        // Собираем данные по строкам
-        const rowData = [];
         for (let row of rows) {
             const inputs = row.querySelectorAll('input');
-            const name = inputs[0].value;
             const n = parseFloat(inputs[1].value) || 0;
             const pn = parseFloat(inputs[2].value) || 0;
             const ku = parseFloat(inputs[3].value) || 0;
             const cosφ = parseFloat(inputs[4].value) || 0;
 
-            if (n <= 0 || pn <= 0) continue; // пропускаем некорректные строки
+            if (n <= 0 || pn <= 0) continue;
 
-            const tgφ = Math.sqrt(1 - cosφ*cosφ) / cosφ; // возможно деление на 0, но cosφ>0 по смыслу
-            if (!isFinite(tgφ)) continue; // защита от cosφ=0
+            const tgφ = Math.sqrt(1 - cosφ*cosφ) / cosφ;
+            if (!isFinite(tgφ)) continue;
 
             const Pn = n * pn;
             const kuPn = ku * Pn;
@@ -570,28 +574,19 @@
             totalN += n;
             if (pn > maxPn) maxPn = pn;
             if (pn < minPn) minPn = pn;
-
-            rowData.push({ n, pn, ku, tgφ, Pn, kuPn, kuPnTg, nPn2 });
         }
 
-        // Проверка на наличие данных
         if (sumPn === 0) {
             alert('Введите корректные данные электроприёмников');
             return;
         }
 
-        // Групповой Kи
         const groupKu = sumKuPn / sumPn;
-
-        // Эффективное число n_э (основная формула)
         let nEff = (sumPn * sumPn) / sumNPn2;
-        // Округление до ближайшего меньшего целого (по РТМ)
         nEff = Math.floor(nEff);
-        if (nEff > totalN) nEff = totalN; // не может превышать общее количество
-        // Проверка условия Pн.макс / Pн.мин ≤ 3
+        if (nEff > totalN) nEff = totalN;
         if (maxPn / minPn <= 3) nEff = totalN;
 
-        // Выбор коэффициента Kр в зависимости от типа сети
         const networkType = document.querySelector('input[name="networkType"]:checked').value;
         let Kp;
         if (networkType === 'supply') {
@@ -601,12 +596,9 @@
         }
         if (Kp === undefined || isNaN(Kp)) Kp = 1.0;
 
-        // Расчётная активная мощность
         let Pp = Kp * sumKuPn;
-        // Проверка: не меньше номинальной мощности наиболее мощного ЭП
         if (Pp < maxPn) Pp = maxPn;
 
-        // Расчётная реактивная мощность
         let Qp;
         if (networkType === 'supply') {
             if (nEff <= 10) {
@@ -615,17 +607,16 @@
                 Qp = sumKuPnTg;
             }
         } else {
-            // Для магистральных шинопроводов: Qp = Kp * sumKuPnTg = Pp * (sumKuPnTg/sumKuPn) = Pp * средний tgφ
             const avgTg = sumKuPnTg / sumKuPn;
             Qp = Pp * avgTg;
         }
 
-        // Полная мощность
         const Sp = Math.sqrt(Pp*Pp + Qp*Qp);
+        const Un = parseFloat(document.getElementById('voltage').value) || 0.38;
+        const Ip = Sp / (Math.sqrt(3) * Un);
 
-        // Ток Iр
-        const Un = parseFloat(document.getElementById('voltage').value) || 0.38; // кВ
-        const Ip = Sp / (Math.sqrt(3) * Un); // формула Iр = Sр / (√3 * Uн) (Uн в кВ, Sр в кВА -> Iр в А)
+        // Сохраняем Ip для сравнения
+        lastIp = Ip;
 
         // Отображение результатов
         document.getElementById('sumPn').innerText = sumPn.toFixed(2);
@@ -639,7 +630,12 @@
         document.getElementById('qp').innerText = Qp.toFixed(2);
         document.getElementById('sp').innerText = Sp.toFixed(2);
         document.getElementById('ip').innerText = Ip.toFixed(2);
+
+        updateComparison();
     });
+
+    // Инициализация сравнения при загрузке
+    updateComparison();
 </script>
 </body>
 </html>
