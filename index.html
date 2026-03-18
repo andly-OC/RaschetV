@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор тока — шаг 1 (ручной ввод)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-top: 0;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        .slider-container {
+            margin: 30px 0;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #555;
+            font-weight: 500;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .value-edit {
+            display: flex;
+            align-items: center;
+            background: #f0f3ff;
+            border-radius: 50px;
+            padding: 5px 5px 5px 15px;
+        }
+        .value-edit input {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            background: transparent;
+            border: none;
+            width: 120px;
+            text-align: right;
+            outline: none;
+            padding: 0;
+            font-family: inherit;
+        }
+        .value-edit input[type="number"]::-webkit-outer-spin-button,
+        .value-edit input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .value-edit input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        .unit {
+            font-size: 1.2rem;
+            color: #999;
+            margin-left: 5px;
+            padding-right: 15px;
+        }
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            outline: none;
+            margin: 20px 0;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 25px;
+            height: 25px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            border: 2px solid #667eea;
+            transition: 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: #f0f3ff;
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            border: 2px solid #667eea;
+        }
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            color: #777;
+            font-size: 0.9rem;
+            margin-top: -10px;
+        }
+        .future-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px dashed #ccc;
+            text-align: center;
+            color: #888;
+        }
+        .future-section h3 {
+            color: #555;
+            font-weight: 400;
+            margin-bottom: 5px;
+        }
+        .future-section p {
+            font-size: 0.9rem;
+        }
+        .note {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>⚡ Расчёт токов ⚡</h1>
+        <div class="subtitle">Шаг 1: выбор силы тока (ползунок + ручной ввод)</div>
+
+        <div class="slider-container">
+            <div class="slider-label">
+                <span>Сила тока I:</span>
+                <div class="value-edit">
+                    <input type="number" id="currentInput" min="0.1" max="2500" step="0.1" value="0.1">
+                    <span class="unit">А</span>
+                </div>
+            </div>
+
+            <input type="range" id="currentSlider" min="0.1" max="2500" step="0.1" value="0.1">
+
+            <div class="range-labels">
+                <span>0.1 А</span>
+                <span>1250 А</span>
+                <span>2500 А</span>
+            </div>
+        </div>
+
+        <!-- Место для будущих расчётов (расчётный и пиковый ток) -->
+        <div class="future-section">
+            <h3>📈 Расчётный и пиковый токи</h3>
+            <p>Здесь появятся результаты вычислений на следующем шаге.</p>
+            <div style="display: flex; justify-content: space-around; margin-top: 15px;">
+                <div style="background: #eef2f7; padding: 10px; border-radius: 10px; width: 45%;">
+                    <div style="color: #555;">I<sub>расч</sub></div>
+                    <div style="font-size: 1.3rem; color: #667eea;">—</div>
+                </div>
+                <div style="background: #eef2f7; padding: 10px; border-radius: 10px; width: 45%;">
+                    <div style="color: #555;">I<sub>пик</sub></div>
+                    <div style="font-size: 1.3rem; color: #667eea;">—</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="note">
+            ⚙️ Диапазон: 0,1 … 2500 А, шаг 0,1 А. Можно вводить вручную или пользоваться ползунком.
+        </div>
+    </div>
+
+    <script>
+        const slider = document.getElementById('currentSlider');
+        const input = document.getElementById('currentInput');
+
+        // Функция для форматирования числа с одним десятичным знаком
+        function formatValue(val) {
+            return Math.round(val * 10) / 10; // округление до 0.1
+        }
+
+        // Обновление поля ввода из ползунка
+        function updateInputFromSlider() {
+            let val = parseFloat(slider.value);
+            val = formatValue(val);
+            input.value = val;
+        }
+
+        // Обновление ползунка из поля ввода с проверкой
+        function updateSliderFromInput() {
+            let rawValue = input.value.trim();
+
+            if (rawValue === '') {
+                // Если поле пустое, восстанавливаем предыдущее значение из слайдера
+                input.value = slider.value;
+                return;
+            }
+
+            let num = parseFloat(rawValue);
+            // Проверка на число и на диапазон
+            if (isNaN(num)) {
+                // Если не число, возвращаем предыдущее значение слайдера
+                input.value = slider.value;
+                return;
+            }
+
+            // Округляем до шага 0.1
+            num = formatValue(num);
+
+            // Проверка границ
+            const min = parseFloat(slider.min);
+            const max = parseFloat(slider.max);
+            if (num < min) num = min;
+            if (num > max) num = max;
+
+            // Устанавливаем в слайдер и поле (на случай если границы скорректированы)
+            slider.value = num;
+            input.value = num;
+        }
+
+        // События
+        slider.addEventListener('input', updateInputFromSlider);
+        input.addEventListener('input', updateSliderFromInput);
+
+        // Дополнительно: при потере фокуса можно ещё раз проверить корректность (на случай ввода "0" или пустого)
+        input.addEventListener('blur', function() {
+            let val = parseFloat(input.value);
+            if (isNaN(val) || val === '') {
+                // Если поле пустое или не число, ставим значение из слайдера
+                input.value = slider.value;
+            } else {
+                // Иначе форматируем и проверяем границы (на всякий случай)
+                updateSliderFromInput();
+            }
+        });
+
+        // Инициализация
+        updateInputFromSlider();
+    </script>
+</body>
+</html>
