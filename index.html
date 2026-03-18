@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Расчёт тока по РТМ 36.18.32.4-92 + ползунок</title>
+    <title>Расчёт расчётного и пикового тока (ползунок тока)</title>
     <style>
         * {
             box-sizing: border-box;
@@ -211,12 +211,6 @@
             margin-right: 10px;
             color: #555;
         }
-        .settings input, .settings select {
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 1rem;
-        }
         .radio-group {
             display: flex;
             gap: 20px;
@@ -226,6 +220,18 @@
             display: flex;
             align-items: center;
             gap: 5px;
+        }
+        .param-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .param-input input {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            width: 100px;
+            font-size: 1rem;
         }
         .calculate-btn {
             background: #667eea;
@@ -287,10 +293,10 @@
 </head>
 <body>
 <div class="card">
-    <h1>⚡ Расчёт тока по РТМ 36.18.32.4-92 ⚡</h1>
-    <div class="subtitle">Все расчёты из методички + ползунок влияет на сравнение</div>
+    <h1>⚡ Расчёт расчётного и пикового тока ⚡</h1>
+    <div class="subtitle">Ползунок тока для сравнения | Расчёт по РТМ 36.18.32.4-92</div>
 
-    <!-- Блок с ползунком (теперь влияет на сравнение) -->
+    <!-- Блок с ползунком тока -->
     <div class="slider-container">
         <div class="slider-label">
             <span>Заданный ток I<sub>зад</sub> (для сравнения):</span>
@@ -306,7 +312,7 @@
             <span>2500 А</span>
         </div>
         <div class="comparison" id="comparison">
-            Расчётный I<sub>р</sub> пока не рассчитан. Нажмите "Рассчитать".
+            Заданный ток: <span id="currentDisplay">0.1</span> А. Расчётный I<sub>р</sub> пока не рассчитан.
         </div>
     </div>
 
@@ -333,17 +339,21 @@
 
     <!-- Настройки расчёта -->
     <div class="settings">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <label for="voltage">Номинальное напряжение U<sub>н</sub> (кВ):</label>
-            <input type="number" id="voltage" step="0.01" min="0.1" value="0.38" style="width: 100px;">
-        </div>
         <div class="radio-group">
             <label><input type="radio" name="networkType" value="supply" checked> Питающая сеть до 1 кВ (T<sub>о</sub>=10 мин)</label>
             <label><input type="radio" name="networkType" value="main"> Магистральные шинопроводы / цеховые трансформаторы (T<sub>о</sub>=2,5 ч)</label>
         </div>
+        <div class="param-input">
+            <label for="voltage">Напряжение U<sub>н</sub> (В):</label>
+            <input type="number" id="voltage" min="100" max="10000" step="1" value="380">
+        </div>
+        <div class="param-input">
+            <label for="kpStart">Кратность пускового тока K<sub>п</sub>:</label>
+            <input type="number" id="kpStart" min="1" max="20" step="0.1" value="6.5">
+        </div>
     </div>
 
-    <button class="calculate-btn" id="calculateBtn">Рассчитать I<sub>р</sub></button>
+    <button class="calculate-btn" id="calculateBtn">Рассчитать токи</button>
 
     <!-- Результаты расчёта -->
     <div class="results" id="results">
@@ -358,17 +368,19 @@
         <div class="result-item"><span class="label">Q<sub>р</sub> (квар)</span><span class="value" id="qp">0</span></div>
         <div class="result-item"><span class="label">S<sub>р</sub> (кВА)</span><span class="value" id="sp">0</span></div>
         <div class="result-item"><span class="label">I<sub>р</sub> (А)</span><span class="value" id="ip">0</span></div>
+        <div class="result-item"><span class="label">I<sub>пик</sub> (А)</span><span class="value" id="ipeak">0</span></div>
     </div>
 
     <div class="note">
-        ⚙️ Расчёт выполняется по РТМ 36.18.32.4-92. Ползунок задаёт произвольный ток I<sub>зад</sub>; после расчёта I<sub>р</sub> сравнение обновляется автоматически при движении ползунка.
+        ⚙️ Расчёт I<sub>р</sub> по РТМ 36.18.32.4-92. I<sub>пик</sub> = I<sub>пуск.макс</sub> + I<sub>р</sub> - I<sub>ном.макс</sub>·K<sub>и</sub>. Ползунок задаёт произвольный ток для сравнения.
     </div>
 </div>
 
 <script>
-    // ---------- Синхронизация ползунка (из предыдущей версии) ----------
+    // ---------- Синхронизация ползунка тока ----------
     const slider = document.getElementById('currentSlider');
     const input = document.getElementById('currentInput');
+    const currentDisplay = document.getElementById('currentDisplay');
     const comparisonDiv = document.getElementById('comparison');
 
     let lastIp = null; // для хранения последнего рассчитанного Iр
@@ -376,12 +388,15 @@
     function formatValue(val) {
         return Math.round(val * 10) / 10;
     }
+
     function updateInputFromSlider() {
         let val = parseFloat(slider.value);
         val = formatValue(val);
         input.value = val;
+        currentDisplay.innerText = val;
         updateComparison();
     }
+
     function updateSliderFromInput() {
         let rawValue = input.value.trim();
         if (rawValue === '') { input.value = slider.value; return; }
@@ -394,8 +409,10 @@
         if (num > max) num = max;
         slider.value = num;
         input.value = num;
+        currentDisplay.innerText = num;
         updateComparison();
     }
+
     slider.addEventListener('input', updateInputFromSlider);
     input.addEventListener('input', updateSliderFromInput);
     input.addEventListener('blur', function() {
@@ -404,14 +421,13 @@
         else updateSliderFromInput();
     });
 
-    // Функция обновления сравнения
     function updateComparison() {
         const zad = parseFloat(input.value);
         if (lastIp !== null && !isNaN(lastIp) && lastIp > 0) {
             const ratio = zad / lastIp;
-            comparisonDiv.innerHTML = `Заданный ток <span>${zad.toFixed(1)} А</span> | Расчётный I<sub>р</sub> = <span>${lastIp.toFixed(2)} А</span> | Отношение I<sub>зад</sub>/I<sub>р</sub> = <span>${ratio.toFixed(2)}</span>`;
+            comparisonDiv.innerHTML = `Заданный ток: <span>${zad.toFixed(1)} А</span> | Расчётный I<sub>р</sub> = <span>${lastIp.toFixed(2)} А</span> | Отношение I<sub>зад</sub>/I<sub>р</sub> = <span>${ratio.toFixed(2)}</span>`;
         } else {
-            comparisonDiv.innerHTML = `Заданный ток: ${zad.toFixed(1)} А. Расчётный I<sub>р</sub> пока не рассчитан.`;
+            comparisonDiv.innerHTML = `Заданный ток: <span>${zad.toFixed(1)} А</span>. Расчётный I<sub>р</sub> пока не рассчитан.`;
         }
     }
 
@@ -547,7 +563,8 @@
         let sumKuPnTg = 0;
         let sumNPn2 = 0;
         let maxPn = 0;
-        let minPn = Infinity;
+        let cosMax = 1;
+        let kuMax = 0;
         let totalN = 0;
 
         for (let row of rows) {
@@ -572,8 +589,12 @@
             sumKuPnTg += kuPnTg;
             sumNPn2 += nPn2;
             totalN += n;
-            if (pn > maxPn) maxPn = pn;
-            if (pn < minPn) minPn = pn;
+
+            if (pn > maxPn) {
+                maxPn = pn;
+                cosMax = cosφ;
+                kuMax = ku;
+            }
         }
 
         if (sumPn === 0) {
@@ -585,6 +606,13 @@
         let nEff = (sumPn * sumPn) / sumNPn2;
         nEff = Math.floor(nEff);
         if (nEff > totalN) nEff = totalN;
+
+        // Находим минимальную мощность для проверки условия
+        let minPn = Infinity;
+        rows.forEach(row => {
+            const pn = parseFloat(row.querySelectorAll('input')[2].value);
+            if (pn > 0 && pn < minPn) minPn = pn;
+        });
         if (maxPn / minPn <= 3) nEff = totalN;
 
         const networkType = document.querySelector('input[name="networkType"]:checked').value;
@@ -612,10 +640,19 @@
         }
 
         const Sp = Math.sqrt(Pp*Pp + Qp*Qp);
-        const Un = parseFloat(document.getElementById('voltage').value) || 0.38;
-        const Ip = Sp / (Math.sqrt(3) * Un);
+        const U = parseFloat(document.getElementById('voltage').value) / 1000; // В -> кВ
+        const Ip = Sp / (Math.sqrt(3) * U);
 
-        // Сохраняем Ip для сравнения
+        // Расчёт пикового тока
+        const kpStart = parseFloat(document.getElementById('kpStart').value) || 6.5;
+        let Ipeak = 0;
+        if (maxPn > 0 && cosMax > 0) {
+            const InomMax = maxPn / (Math.sqrt(3) * U * cosMax);
+            const IstartMax = kpStart * InomMax;
+            Ipeak = IstartMax + Ip - InomMax * kuMax;
+        }
+
+        // Сохраняем Iр для сравнения
         lastIp = Ip;
 
         // Отображение результатов
@@ -630,11 +667,12 @@
         document.getElementById('qp').innerText = Qp.toFixed(2);
         document.getElementById('sp').innerText = Sp.toFixed(2);
         document.getElementById('ip').innerText = Ip.toFixed(2);
+        document.getElementById('ipeak').innerText = Ipeak.toFixed(2);
 
         updateComparison();
     });
 
-    // Инициализация сравнения при загрузке
+    // Инициализация сравнения
     updateComparison();
 </script>
 </body>
