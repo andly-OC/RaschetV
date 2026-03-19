@@ -87,7 +87,11 @@
             color: #333;
             margin-top: 8px;
         }
-        .bar-unit { font-size: 0.9rem; color: #777; margin-left: 3px; }
+        .bar-unit {
+            font-size: 0.9rem;
+            color: #777;
+            margin-left: 3px;
+        }
 
         .slider-container {
             background: #f9f9f9;
@@ -126,8 +130,15 @@
             -webkit-appearance: none;
             margin: 0;
         }
-        .value-edit input[type="number"] { -moz-appearance: textfield; }
-        .unit { font-size: 1.2rem; color: #999; margin-left: 5px; padding-right: 15px; }
+        .value-edit input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        .unit {
+            font-size: 1.2rem;
+            color: #999;
+            margin-left: 5px;
+            padding-right: 15px;
+        }
         input[type=range] {
             -webkit-appearance: none;
             width: 100%;
@@ -155,7 +166,13 @@
             cursor: pointer;
             border: 2px solid white;
         }
-        .range-labels { display: flex; justify-content: space-between; color: #777; font-size: 0.9rem; margin-top: -10px; }
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            color: #777;
+            font-size: 0.9rem;
+            margin-top: -10px;
+        }
         .comparison {
             margin-top: 10px;
             font-size: 1.1rem;
@@ -164,7 +181,10 @@
             border-radius: 10px;
             text-align: center;
         }
-        .comparison span { font-weight: 700; color: #667eea; }
+        .comparison span {
+            font-weight: 700;
+            color: #667eea;
+        }
 
         /* Схема двигателей */
         .motor-schema {
@@ -175,9 +195,14 @@
             border: 1px solid #d0d9ff;
             position: relative;
         }
-        .motor-schema h2 { text-align: center; margin-top: 0; margin-bottom: 30px; color: #444; }
-        .schema-container { 
-            position: relative; 
+        .motor-schema h2 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 30px;
+            color: #444;
+        }
+        .schema-container {
+            position: relative;
             min-height: 480px;
             width: 100%;
             display: flex;
@@ -200,6 +225,8 @@
             border: 1px solid #aaa;
             overflow: hidden;
             align-self: flex-end;
+            position: relative;
+            z-index: 3;
         }
         .row-label-item {
             height: 28px;
@@ -208,8 +235,13 @@
             border-bottom: 1px dashed #aaa;
             white-space: nowrap;
         }
-        .row-label-item:last-child { border-bottom: none; }
-        .row-label-item span { color: #667eea; font-weight: 700; }
+        .row-label-item:last-child {
+            border-bottom: none;
+        }
+        .row-label-item span {
+            color: #667eea;
+            font-weight: 700;
+        }
 
         /* Контейнер для колонок двигателей */
         .motors-columns {
@@ -217,7 +249,7 @@
             justify-content: space-around;
             flex: 1;
             position: relative;
-            z-index: 2;
+            z-index: 3;
         }
         .motor-column {
             display: flex;
@@ -256,7 +288,9 @@
             background: #e6f0ff;
             border-radius: 4px;
         }
-        .empty-cell { background: #fefefe; }
+        .empty-cell {
+            background: #fefefe;
+        }
 
         /* Ползунки под таблицей */
         .sliders-under {
@@ -272,7 +306,9 @@
             align-items: center;
             width: 100%;
         }
-        .slider-item input[type=range] { width: 100%; }
+        .slider-item input[type=range] {
+            width: 100%;
+        }
 
         /* Ряд кружков */
         .motors-row {
@@ -282,8 +318,8 @@
             bottom: 220px;
             left: 0;
             right: 0;
-            z-index: 3;
-            padding: 0 20px; /* отступы по краям */
+            z-index: 4;
+            padding: 0 20px;
         }
         .motor-item {
             display: flex;
@@ -315,14 +351,23 @@
             height: 100%;
             pointer-events: none;
             z-index: 1;
+            overflow: visible;
         }
         .collector-line {
             stroke: #667eea;
             stroke-width: 3;
-            /* пунктир убран – теперь сплошная */
+            stroke-linecap: round;
         }
-        .motor-line { stroke: #a0a0a0; stroke-width: 2; }
-        .vertical-line { stroke: #667eea; stroke-width: 3; }
+        .motor-line {
+            stroke: #a0a0a0;
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+        .vertical-line {
+            stroke: #667eea;
+            stroke-width: 3;
+            stroke-linecap: round;
+        }
 
         /* Блок со значениями Iр и Iпик рядом с вертикальной линией */
         .line-values {
@@ -361,9 +406,21 @@
             align-items: center;
             justify-content: center;
         }
-        .radio-group { display: flex; gap: 20px; flex-wrap: wrap; }
-        .radio-group label { display: flex; align-items: center; gap: 5px; }
-        .param-input { display: flex; align-items: center; gap: 10px; }
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .param-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
         .param-input input {
             padding: 8px 12px;
             border: 1px solid #ccc;
@@ -385,7 +442,9 @@
             margin: 20px auto;
             width: fit-content;
         }
-        .calculate-btn:hover { background: #5a67d8; }
+        .calculate-btn:hover {
+            background: #5a67d8;
+        }
         .results {
             background: #f9f9f9;
             border-radius: 10px;
@@ -402,9 +461,20 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             text-align: center;
         }
-        .result-item .label { color: #666; font-size: 0.9rem; margin-bottom: 5px; }
-        .result-item .value { font-size: 1.6rem; font-weight: 700; color: #667eea; }
-        .result-item .unit { font-size: 0.9rem; color: #999; }
+        .result-item .label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .result-item .value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .result-item .unit {
+            font-size: 0.9rem;
+            color: #999;
+        }
         .note {
             background: #e7f5ff;
             border-radius: 8px;
@@ -419,27 +489,51 @@
 <body>
 <div class="card">
     <h1>⚡ Расчёт токов по РТМ 36.18.32.4-92 ⚡</h1>
-    <div class="subtitle">Сплошная шина, линии точно под кружками</div>
+    <div class="subtitle">Сплошная шина, линии точно ведут от кружков к таблицам</div>
 
     <!-- Три столбца -->
     <div class="bars-container">
-        <div class="bar-wrapper"><div class="bar-label">I<sub>зад</sub></div><div class="bar" id="barZad" style="height:8px;"></div><div class="bar-value" id="barZadValue">0.1 <span class="bar-unit">А</span></div></div>
-        <div class="bar-wrapper"><div class="bar-label">I<sub>р</sub></div><div class="bar" id="barRp" style="height:8px;"></div><div class="bar-value" id="barRpValue">— <span class="bar-unit">А</span></div></div>
-        <div class="bar-wrapper"><div class="bar-label">I<sub>пик</sub></div><div class="bar" id="barPeak" style="height:8px;"></div><div class="bar-value" id="barPeakValue">— <span class="bar-unit">А</span></div></div>
+        <div class="bar-wrapper">
+            <div class="bar-label">I<sub>зад</sub></div>
+            <div class="bar" id="barZad" style="height:8px;"></div>
+            <div class="bar-value" id="barZadValue">0.1 <span class="bar-unit">А</span></div>
+        </div>
+        <div class="bar-wrapper">
+            <div class="bar-label">I<sub>р</sub></div>
+            <div class="bar" id="barRp" style="height:8px;"></div>
+            <div class="bar-value" id="barRpValue">— <span class="bar-unit">А</span></div>
+        </div>
+        <div class="bar-wrapper">
+            <div class="bar-label">I<sub>пик</sub></div>
+            <div class="bar" id="barPeak" style="height:8px;"></div>
+            <div class="bar-value" id="barPeakValue">— <span class="bar-unit">А</span></div>
+        </div>
     </div>
 
     <!-- Ползунок тока -->
     <div class="slider-container">
-        <div class="slider-label"><span>Заданный ток I<sub>зад</sub>:</span><div class="value-edit"><input type="number" id="currentInput" min="0.1" max="2500" step="0.1" value="0.1"><span class="unit">А</span></div></div>
+        <div class="slider-label">
+            <span>Заданный ток I<sub>зад</sub>:</span>
+            <div class="value-edit">
+                <input type="number" id="currentInput" min="0.1" max="2500" step="0.1" value="0.1">
+                <span class="unit">А</span>
+            </div>
+        </div>
         <input type="range" id="currentSlider" min="0.1" max="2500" step="0.1" value="0.1">
-        <div class="range-labels"><span>0.1 А</span><span>1250 А</span><span>2500 А</span></div>
-        <div class="comparison" id="comparison">Заданный ток: <span id="currentDisplay">0.1</span> А. Расчётный I<sub>р</sub> пока не рассчитан.</div>
+        <div class="range-labels">
+            <span>0.1 А</span>
+            <span>1250 А</span>
+            <span>2500 А</span>
+        </div>
+        <div class="comparison" id="comparison">
+            Заданный ток: <span id="currentDisplay">0.1</span> А. Расчётный I<sub>р</sub> пока не рассчитан.
+        </div>
     </div>
 
     <!-- Схема двигателей -->
     <div class="motor-schema">
         <h2>Схема подключения 6 двигателей</h2>
-        <div class="schema-container">
+        <div class="schema-container" id="schemaContainer">
             <!-- Подписи строк слева -->
             <div class="row-labels">
                 <div class="row-label-item"><span>P</span> (кВт)</div>
@@ -453,26 +547,14 @@
             <!-- Ряд кружков -->
             <div class="motors-row" id="motorsRow"></div>
 
-            <!-- Блок со значениями Iр и Iпик у вертикальной линии -->
+            <!-- Блок со значениями Iр и Iпик -->
             <div class="line-values" id="lineValues">
                 <div>I<sub>р</sub> = <span class="value" id="lineIp">0.00</span> А</div>
                 <div>I<sub>пик</sub> = <span class="value" id="lineIpeak">0.00</span> А</div>
             </div>
 
-            <!-- Линии SVG (координаты подобраны под расположение кружков) -->
-            <svg class="lines-svg" viewBox="0 0 800 480" preserveAspectRatio="xMidYMid meet">
-                <!-- Горизонтальная сборная шина (сплошная) -->
-                <line x1="80" y1="240" x2="720" y2="240" class="collector-line" />
-                <!-- Вертикальная линия вверх от центра шины -->
-                <line x1="400" y1="240" x2="400" y2="30" class="vertical-line" />
-                <!-- Линии от кружков к шине (x1 соответствует центрам кружков: примерно 130, 250, 370, 490, 610, 730) -->
-                <line x1="130" y1="360" x2="180" y2="240" class="motor-line" />
-                <line x1="250" y1="360" x2="300" y2="240" class="motor-line" />
-                <line x1="370" y1="360" x2="400" y2="240" class="motor-line" />
-                <line x1="490" y1="360" x2="460" y2="240" class="motor-line" />
-                <line x1="610" y1="360" x2="580" y2="240" class="motor-line" />
-                <line x1="730" y1="360" x2="700" y2="240" class="motor-line" />
-            </svg>
+            <!-- SVG теперь пустой, линии строятся JS по реальным координатам -->
+            <svg class="lines-svg" id="schemaSvg"></svg>
         </div>
     </div>
 
@@ -482,9 +564,18 @@
             <label><input type="radio" name="networkType" value="supply" checked> Питающая сеть до 1 кВ (10 мин)</label>
             <label><input type="radio" name="networkType" value="main"> Магистральные шинопроводы (2,5 ч)</label>
         </div>
-        <div class="param-input"><label for="voltage">U<sub>н</sub> (В):</label><input type="number" id="voltage" min="100" max="10000" step="1" value="380"></div>
-        <div class="param-input"><label for="kpStart">K<sub>п</sub>:</label><input type="number" id="kpStart" min="1" max="20" step="0.1" value="6.5"></div>
-        <div class="param-input"><label for="cosFi">cos φ:</label><input type="number" id="cosFi" min="0.1" max="1" step="0.01" value="0.5"></div>
+        <div class="param-input">
+            <label for="voltage">U<sub>н</sub> (В):</label>
+            <input type="number" id="voltage" min="100" max="10000" step="1" value="380">
+        </div>
+        <div class="param-input">
+            <label for="kpStart">K<sub>п</sub>:</label>
+            <input type="number" id="kpStart" min="1" max="20" step="0.1" value="6.5">
+        </div>
+        <div class="param-input">
+            <label for="cosFi">cos φ:</label>
+            <input type="number" id="cosFi" min="0.1" max="1" step="0.01" value="0.5">
+        </div>
     </div>
 
     <button class="calculate-btn" id="calculateBtn">Рассчитать токи</button>
@@ -499,7 +590,7 @@
     </div>
 
     <div class="note">
-        ⚙️ Шина теперь сплошная, линии точно ведут к каждому двигателю.
+        ⚙️ Вся логика сохранена, линии в схеме строятся автоматически по текущему положению кружков и таблиц.
     </div>
 </div>
 
@@ -507,12 +598,16 @@
     (function() {
         const motorsColumns = document.getElementById('motorsColumns');
         const motorsRow = document.getElementById('motorsRow');
+        const schemaContainer = document.getElementById('schemaContainer');
+        const schemaSvg = document.getElementById('schemaSvg');
         const motorCount = 6;
 
         const powerInputs = [];
         const kuInputs = [];
         const powerSliders = [];
         const kuSliders = [];
+        const motorTables = [];
+        const motorCircles = [];
 
         const defaultPower = 10;
         const defaultKu = 0.14;
@@ -522,9 +617,10 @@
             const column = document.createElement('div');
             column.className = 'motor-column';
 
-            // Таблица
             const table = document.createElement('table');
             table.className = 'motor-table';
+            table.dataset.index = i;
+            motorTables.push(table);
 
             // Строка 1: мощность
             const row1 = document.createElement('tr');
@@ -571,7 +667,6 @@
             const slidersDiv = document.createElement('div');
             slidersDiv.className = 'sliders-under';
 
-            // Ползунок для мощности
             const sliderPowerDiv = document.createElement('div');
             sliderPowerDiv.className = 'slider-item';
             const sliderPower = document.createElement('input');
@@ -585,7 +680,6 @@
             sliderPowerDiv.appendChild(sliderPower);
             slidersDiv.appendChild(sliderPowerDiv);
 
-            // Ползунок для Kи
             const sliderKuDiv = document.createElement('div');
             sliderKuDiv.className = 'slider-item';
             const sliderKu = document.createElement('input');
@@ -607,21 +701,97 @@
         for (let i = 0; i < motorCount; i++) {
             const motorDiv = document.createElement('div');
             motorDiv.className = 'motor-item';
-            motorDiv.innerHTML = `<div class="motor-circle">M${i+1}</div>`;
+
+            const circle = document.createElement('div');
+            circle.className = 'motor-circle';
+            circle.dataset.index = i;
+            circle.textContent = `M${i + 1}`;
+            motorCircles.push(circle);
+
+            motorDiv.appendChild(circle);
             motorsRow.appendChild(motorDiv);
+        }
+
+        function createSvgLine(x1, y1, x2, y2, className) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
+            line.setAttribute('class', className);
+            return line;
+        }
+
+        function drawSchemaLines() {
+            if (!schemaContainer || !schemaSvg || motorCircles.length === 0 || motorTables.length === 0) {
+                return;
+            }
+
+            const containerRect = schemaContainer.getBoundingClientRect();
+            const width = schemaContainer.clientWidth;
+            const height = schemaContainer.clientHeight;
+
+            schemaSvg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            schemaSvg.setAttribute('width', width);
+            schemaSvg.setAttribute('height', height);
+            schemaSvg.innerHTML = '';
+
+            const circleCenters = motorCircles.map(circle => {
+                const rect = circle.getBoundingClientRect();
+                return {
+                    x: rect.left - containerRect.left + rect.width / 2,
+                    y: rect.top - containerRect.top + rect.height / 2,
+                    bottom: rect.bottom - containerRect.top
+                };
+            });
+
+            const tablePoints = motorTables.map(table => {
+                const rect = table.getBoundingClientRect();
+                return {
+                    x: rect.left - containerRect.left + rect.width / 2,
+                    y: rect.top - containerRect.top
+                };
+            });
+
+            const collectorY = circleCenters.reduce((sum, item) => sum + item.y, 0) / circleCenters.length;
+            const collectorStartX = circleCenters[0].x;
+            const collectorEndX = circleCenters[circleCenters.length - 1].x;
+            const verticalX = (collectorStartX + collectorEndX) / 2;
+            const verticalTopY = 30;
+
+            schemaSvg.appendChild(
+                createSvgLine(collectorStartX, collectorY, collectorEndX, collectorY, 'collector-line')
+            );
+
+            schemaSvg.appendChild(
+                createSvgLine(verticalX, collectorY, verticalX, verticalTopY, 'vertical-line')
+            );
+
+            for (let i = 0; i < motorCount; i++) {
+                const c = circleCenters[i];
+                const t = tablePoints[i];
+
+                schemaSvg.appendChild(
+                    createSvgLine(c.x, c.bottom, t.x, t.y, 'motor-line')
+                );
+            }
         }
 
         // Синхронизация ползунков и инпутов
         function bindSliderToInput(slider, input) {
-            slider.addEventListener('input', function() { input.value = slider.value; });
+            slider.addEventListener('input', function() {
+                input.value = slider.value;
+            });
+
             input.addEventListener('input', function() {
                 let val = parseFloat(input.value);
-                if (isNaN(val)) val = slider.min;
-                if (val < slider.min) val = slider.min;
-                if (val > slider.max) val = slider.max;
+                if (isNaN(val)) val = parseFloat(slider.min);
+                if (val < parseFloat(slider.min)) val = parseFloat(slider.min);
+                if (val > parseFloat(slider.max)) val = parseFloat(slider.max);
                 slider.value = val;
                 input.value = val;
             });
+
             slider.value = input.value;
         }
 
@@ -672,30 +842,54 @@
         const input = document.getElementById('currentInput');
         const currentDisplay = document.getElementById('currentDisplay');
         const comparisonDiv = document.getElementById('comparison');
-        let lastIp = null, lastIpeak = null;
+        let lastIp = null;
+        let lastIpeak = null;
 
-        function formatValue(val) { return Math.round(val * 10) / 10; }
+        function formatValue(val) {
+            return Math.round(val * 10) / 10;
+        }
+
         function updateInputFromSlider() {
-            let val = parseFloat(slider.value); val = formatValue(val);
-            input.value = val; currentDisplay.innerText = val;
-            updateBars(val, lastIp, lastIpeak); updateComparison();
+            let val = parseFloat(slider.value);
+            val = formatValue(val);
+            input.value = val;
+            currentDisplay.innerText = val;
+            updateBars(val, lastIp, lastIpeak);
+            updateComparison();
         }
+
         function updateSliderFromInput() {
-            let rawValue = input.value.trim();
-            if (rawValue === '') { input.value = slider.value; return; }
+            const rawValue = input.value.trim();
+            if (rawValue === '') {
+                input.value = slider.value;
+                return;
+            }
             let num = parseFloat(rawValue);
-            if (isNaN(num)) { input.value = slider.value; return; }
+            if (isNaN(num)) {
+                input.value = slider.value;
+                return;
+            }
             num = formatValue(num);
-            const min = parseFloat(slider.min), max = parseFloat(slider.max);
-            if (num < min) num = min; if (num > max) num = max;
-            slider.value = num; input.value = num; currentDisplay.innerText = num;
-            updateBars(num, lastIp, lastIpeak); updateComparison();
+            const min = parseFloat(slider.min);
+            const max = parseFloat(slider.max);
+            if (num < min) num = min;
+            if (num > max) num = max;
+            slider.value = num;
+            input.value = num;
+            currentDisplay.innerText = num;
+            updateBars(num, lastIp, lastIpeak);
+            updateComparison();
         }
+
         slider.addEventListener('input', updateInputFromSlider);
         input.addEventListener('input', updateSliderFromInput);
         input.addEventListener('blur', function() {
-            let val = parseFloat(input.value);
-            if (isNaN(val)) input.value = slider.value; else updateSliderFromInput();
+            const val = parseFloat(input.value);
+            if (isNaN(val)) {
+                input.value = slider.value;
+            } else {
+                updateSliderFromInput();
+            }
         });
 
         function updateComparison() {
@@ -712,6 +906,7 @@
         function getMotorData() {
             const powers = [];
             const kus = [];
+
             for (let i = 0; i < motorCount; i++) {
                 let p = parseFloat(powerInputs[i].value);
                 if (isNaN(p) || p < 0.1) p = 0.1;
@@ -723,6 +918,7 @@
                 if (ku > 1) ku = 1;
                 kus.push(ku);
             }
+
             return { powers, kus };
         }
 
@@ -730,7 +926,7 @@
         function calculate() {
             const { powers, kus } = getMotorData();
             const cosFi = parseFloat(document.getElementById('cosFi').value) || 0.5;
-            const tgFi = Math.sqrt(1 - cosFi*cosFi) / cosFi;
+            const tgFi = Math.sqrt(1 - cosFi * cosFi) / cosFi;
 
             let sumPn = 0;
             let sumKuPn = 0;
@@ -746,6 +942,7 @@
                 sumKuPn += ku * pn;
                 sumKuPnTg += ku * pn * tgFi;
                 sumNPn2 += pn * pn;
+
                 if (pn > maxPn) {
                     maxPn = pn;
                     kuForMax = ku;
@@ -759,7 +956,7 @@
             const networkType = document.querySelector('input[name="networkType"]:checked').value;
             let Kp;
             if (networkType === 'supply') {
-                Kp = 1 + 0.5 * Math.exp(-nEff/3);
+                Kp = 1 + 0.5 * Math.exp(-nEff / 3);
             } else {
                 Kp = 1.0;
             }
@@ -774,7 +971,7 @@
                 Qp = sumKuPnTg;
             }
 
-            const Sp = Math.sqrt(Pp*Pp + Qp*Qp);
+            const Sp = Math.sqrt(Pp * Pp + Qp * Qp);
             const U = parseFloat(document.getElementById('voltage').value) / 1000;
             const Ip = Sp / (Math.sqrt(3) * U);
 
@@ -789,7 +986,6 @@
             return { sumPn, sumKuPn, Pp, Qp, Sp, Ip, Ipeak };
         }
 
-        // Элементы для отображения у линии
         const lineIp = document.getElementById('lineIp');
         const lineIpeak = document.getElementById('lineIpeak');
 
@@ -813,10 +1009,30 @@
 
         document.getElementById('calculateBtn').addEventListener('click', updateResults);
 
+        // Перерисовка линий после отрисовки DOM
+        function scheduleDrawSchemaLines() {
+            requestAnimationFrame(drawSchemaLines);
+        }
+
+        window.addEventListener('resize', scheduleDrawSchemaLines);
+
+        if (typeof ResizeObserver !== 'undefined') {
+            const resizeObserver = new ResizeObserver(scheduleDrawSchemaLines);
+            resizeObserver.observe(schemaContainer);
+            resizeObserver.observe(motorsColumns);
+            resizeObserver.observe(motorsRow);
+        }
+
         // Инициализация
         updateBars(0.1, null, null);
         lineIp.innerText = '0.00';
         lineIpeak.innerText = '0.00';
+
+        scheduleDrawSchemaLines();
+
+        window.addEventListener('load', scheduleDrawSchemaLines);
+        setTimeout(scheduleDrawSchemaLines, 50);
+        setTimeout(scheduleDrawSchemaLines, 200);
     })();
 </script>
 </body>
