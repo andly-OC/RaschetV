@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Расчёт расчётного и пикового тока (ползунок тока)</title>
+    <title>Визуализация токов — названия сверху, значения снизу, высота меняется</title>
     <style>
         * {
             box-sizing: border-box;
@@ -27,7 +27,7 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow-x: auto;
         }
-        h1, h2, h3 {
+        h1, h2 {
             color: #333;
             font-weight: 300;
             margin-top: 0;
@@ -35,7 +35,6 @@
         h1 {
             text-align: center;
             letter-spacing: 1px;
-            margin-bottom: 5px;
         }
         .subtitle {
             text-align: center;
@@ -43,6 +42,69 @@
             margin-bottom: 25px;
             font-style: italic;
         }
+
+        /* Контейнер для трёх столбцов */
+        .bars-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            background: linear-gradient(to bottom, #f9f9ff, #eef2f7);
+            border-radius: 30px;
+            padding: 0 20px 20px 20px;
+            margin-bottom: 30px;
+            height: 300px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05), 0 10px 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .bar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 120px;
+            height: 100%;
+            position: relative;
+        }
+        /* Названия столбцов вверху (прижаты к верхней границе) */
+        .bar-label {
+            font-weight: 700;
+            color: #444;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: auto; /* прижимает к верху, так как wrapper flex column */
+            padding-top: 10px;
+        }
+        /* Столбец — высота управляется через JS, минимальная 8px для видимости */
+        .bar {
+            width: 70px;
+            border-radius: 15px 15px 5px 5px;
+            transition: height 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            min-height: 8px;
+        }
+        #barZad {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a5a);
+        }
+        #barRp {
+            background: linear-gradient(45deg, #4facfe, #00c6fb);
+        }
+        #barPeak {
+            background: linear-gradient(45deg, #a18cd1, #fbc2eb);
+        }
+        /* Числовые значения под столбцами */
+        .bar-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            margin-top: 8px;
+        }
+        .bar-unit {
+            font-size: 0.9rem;
+            color: #777;
+            margin-left: 3px;
+        }
+
         .slider-container {
             background: #f9f9f9;
             border-radius: 15px;
@@ -293,13 +355,36 @@
 </head>
 <body>
 <div class="card">
-    <h1>⚡ Расчёт расчётного и пикового тока ⚡</h1>
-    <div class="subtitle">Ползунок тока для сравнения | Расчёт по РТМ 36.18.32.4-92</div>
+    <h1>⚡ Визуализация токов (высота меняется!) ⚡</h1>
+    <div class="subtitle">Названия сверху, значения снизу, высота столбцов изменяется</div>
+
+    <!-- Три вертикальные полоски -->
+    <div class="bars-container">
+        <div class="bar-wrapper">
+            <div class="bar-label">I<sub>зад</sub></div>
+            <div class="bar" id="barZad" style="height: 8px;"></div>
+            <div class="bar-value" id="barZadValue">0.1 <span class="bar-unit">А</span></div>
+        </div>
+        <div class="bar-wrapper">
+            <div class="bar-label">I<sub>р</sub></div>
+            <div class="bar" id="barRp" style="height: 8px;"></div>
+            <div class="bar-value" id="barRpValue">— <span class="bar-unit">А</span></div>
+        </div>
+        <div class="bar-wrapper">
+            <div class="bar-label">I<sub>пик</sub></div>
+            <div class="bar" id="barPeak" style="height: 8px;"></div>
+            <div class="bar-value" id="barPeakValue">— <span class="bar-unit">А</span></div>
+        </div>
+    </div>
+    <!-- Пояснение по шкале -->
+    <div style="text-align: center; margin-top: -20px; margin-bottom: 20px; color: #888; font-size: 0.9rem;">
+        ⬆️ Высота столбцов пропорциональна 2500 А (макс). Названия закреплены вверху.
+    </div>
 
     <!-- Блок с ползунком тока -->
     <div class="slider-container">
         <div class="slider-label">
-            <span>Заданный ток I<sub>зад</sub> (для сравнения):</span>
+            <span>Заданный ток I<sub>зад</sub> (ползунок):</span>
             <div class="value-edit">
                 <input type="number" id="currentInput" min="0.1" max="2500" step="0.1" value="0.1">
                 <span class="unit">А</span>
@@ -355,7 +440,7 @@
 
     <button class="calculate-btn" id="calculateBtn">Рассчитать токи</button>
 
-    <!-- Результаты расчёта -->
+    <!-- Результаты расчёта (табличные данные) -->
     <div class="results" id="results">
         <div class="result-item"><span class="label">ΣP<sub>н</sub> (кВт)</span><span class="value" id="sumPn">0</span></div>
         <div class="result-item"><span class="label">ΣK<sub>и</sub>P<sub>н</sub> (кВт)</span><span class="value" id="sumKuPn">0</span></div>
@@ -372,146 +457,224 @@
     </div>
 
     <div class="note">
-        ⚙️ Расчёт I<sub>р</sub> по РТМ 36.18.32.4-92. I<sub>пик</sub> = I<sub>пуск.макс</sub> + I<sub>р</sub> - I<sub>ном.макс</sub>·K<sub>и</sub>. Ползунок задаёт произвольный ток для сравнения.
+        ⚙️ Названия столбцов закреплены вверху. Высота меняется плавно. Если столбцы не меняют высоту — обновите страницу или проверьте консоль.
     </div>
 </div>
 
 <script>
-    // ---------- Синхронизация ползунка тока ----------
-    const slider = document.getElementById('currentSlider');
-    const input = document.getElementById('currentInput');
-    const currentDisplay = document.getElementById('currentDisplay');
-    const comparisonDiv = document.getElementById('comparison');
+    (function() {
+        // ---------- Элементы для столбцов ----------
+        const barZad = document.getElementById('barZad');
+        const barRp = document.getElementById('barRp');
+        const barPeak = document.getElementById('barPeak');
+        const barZadValue = document.getElementById('barZadValue');
+        const barRpValue = document.getElementById('barRpValue');
+        const barPeakValue = document.getElementById('barPeakValue');
 
-    let lastIp = null; // для хранения последнего рассчитанного Iр
+        const MAX_BAR = 2500; // максимальное значение для шкалы (высота 100% соответствует 2500 А)
 
-    function formatValue(val) {
-        return Math.round(val * 10) / 10;
-    }
+        // Функция обновления высоты и значений столбцов
+        function updateBars(zad, rp, peak) {
+            // Заданный ток
+            const zadNum = parseFloat(zad) || 0;
+            let zadPercent = (zadNum / MAX_BAR) * 100;
+            zadPercent = Math.max(3, Math.min(100, zadPercent));
+            barZad.style.height = zadPercent + '%';
+            barZadValue.innerHTML = zadNum.toFixed(1) + ' <span class="bar-unit">А</span>';
 
-    function updateInputFromSlider() {
-        let val = parseFloat(slider.value);
-        val = formatValue(val);
-        input.value = val;
-        currentDisplay.innerText = val;
-        updateComparison();
-    }
+            // Расчётный ток
+            if (rp !== null && !isNaN(rp) && rp > 0) {
+                let rpPercent = (rp / MAX_BAR) * 100;
+                rpPercent = Math.max(3, Math.min(100, rpPercent));
+                barRp.style.height = rpPercent + '%';
+                barRpValue.innerHTML = rp.toFixed(2) + ' <span class="bar-unit">А</span>';
+            } else {
+                barRp.style.height = '3%';
+                barRpValue.innerHTML = '— <span class="bar-unit">А</span>';
+            }
 
-    function updateSliderFromInput() {
-        let rawValue = input.value.trim();
-        if (rawValue === '') { input.value = slider.value; return; }
-        let num = parseFloat(rawValue);
-        if (isNaN(num)) { input.value = slider.value; return; }
-        num = formatValue(num);
-        const min = parseFloat(slider.min);
-        const max = parseFloat(slider.max);
-        if (num < min) num = min;
-        if (num > max) num = max;
-        slider.value = num;
-        input.value = num;
-        currentDisplay.innerText = num;
-        updateComparison();
-    }
-
-    slider.addEventListener('input', updateInputFromSlider);
-    input.addEventListener('input', updateSliderFromInput);
-    input.addEventListener('blur', function() {
-        let val = parseFloat(input.value);
-        if (isNaN(val)) input.value = slider.value;
-        else updateSliderFromInput();
-    });
-
-    function updateComparison() {
-        const zad = parseFloat(input.value);
-        if (lastIp !== null && !isNaN(lastIp) && lastIp > 0) {
-            const ratio = zad / lastIp;
-            comparisonDiv.innerHTML = `Заданный ток: <span>${zad.toFixed(1)} А</span> | Расчётный I<sub>р</sub> = <span>${lastIp.toFixed(2)} А</span> | Отношение I<sub>зад</sub>/I<sub>р</sub> = <span>${ratio.toFixed(2)}</span>`;
-        } else {
-            comparisonDiv.innerHTML = `Заданный ток: <span>${zad.toFixed(1)} А</span>. Расчётный I<sub>р</sub> пока не рассчитан.`;
+            // Пиковый ток
+            if (peak !== null && !isNaN(peak) && peak > 0) {
+                let peakPercent = (peak / MAX_BAR) * 100;
+                peakPercent = Math.max(3, Math.min(100, peakPercent));
+                barPeak.style.height = peakPercent + '%';
+                barPeakValue.innerHTML = peak.toFixed(2) + ' <span class="bar-unit">А</span>';
+            } else {
+                barPeak.style.height = '3%';
+                barPeakValue.innerHTML = '— <span class="bar-unit">А</span>';
+            }
         }
-    }
 
-    // ---------- Таблица ввода ЭП ----------
-    const tableBody = document.getElementById('epTableBody');
-    const addRowBtn = document.getElementById('addRowBtn');
+        // ---------- Синхронизация ползунка тока ----------
+        const slider = document.getElementById('currentSlider');
+        const input = document.getElementById('currentInput');
+        const currentDisplay = document.getElementById('currentDisplay');
+        const comparisonDiv = document.getElementById('comparison');
 
-    function createRow(name = '', n = 1, pn = 1.0, ku = 0.14, cosφ = 0.5) {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><input type="text" placeholder="Наименование" value="${name}"></td>
-            <td><input type="number" min="1" step="1" value="${n}" class="n-input"></td>
-            <td><input type="number" min="0" step="0.1" value="${pn}" class="pn-input"></td>
-            <td><input type="number" min="0" max="1" step="0.01" value="${ku}" class="ku-input"></td>
-            <td><input type="number" min="0" max="1" step="0.01" value="${cosφ}" class="cos-input"></td>
-            <td><button class="delete-btn">✖</button></td>
-        `;
-        row.querySelector('.delete-btn').addEventListener('click', () => row.remove());
-        return row;
-    }
+        let lastIp = null;      // последний рассчитанный Iр
+        let lastIpeak = null;   // последний рассчитанный Iпик
 
-    // Добавим несколько строк по умолчанию
-    for (let i = 0; i < 3; i++) {
-        tableBody.appendChild(createRow('Станок ' + (i+1), i+1, 5 + i*2, 0.14, 0.5));
-    }
-
-    addRowBtn.addEventListener('click', () => {
-        tableBody.appendChild(createRow('', 1, 1, 0.14, 0.5));
-    });
-
-    // ---------- Таблицы коэффициентов Kр ----------
-    const kpTable1 = {
-        1:   [8.00, 5.33, 4.00, 2.67, 2.00, 1.60, 1.33, 1.14, 1.02],
-        2:   [6.22, 4.33, 3.39, 2.45, 1.98, 1.60, 1.33, 1.14, 1.03],
-        3:   [4.05, 2.89, 2.31, 1.74, 1.45, 1.34, 1.22, 1.14, 1.04],
-        4:   [3.24, 2.35, 1.91, 1.47, 1.25, 1.21, 1.12, 1.06, 1.0],
-        5:   [2.84, 2.09, 1.72, 1.35, 1.16, 1.16, 1.08, 1.03, 1.06],
-        6:   [2.64, 1.96, 1.62, 1.28, 1.11, 1.13, 1.06, 1.01, 1.07],
-        7:   [2.49, 1.86, 1.54, 1.23, 1.12, 1.10, 1.04, 1.0, 1.08],
-        8:   [2.37, 1.78, 1.48, 1.19, 1.10, 1.08, 1.02, 1.0, 1.09],
-        9:   [2.27, 1.71, 1.43, 1.16, 1.09, 1.07, 1.01, 1.0, 1.0],
-        10:  [2.18, 1.65, 1.39, 1.13, 1.07, 1.05, 1.0, 1.0, 1.0],
-        12:  [2.11, 1.61, 1.35, 1.10, 1.06, 1.04, 1.0, 1.0, 1.0],
-        15:  [1.99, 1.52, 1.29, 1.06, 1.04, 1.01, 1.0, 1.0, 1.0],
-        20:  [1.72, 1.35, 1.16, 1.01, 1.0, 1.0, 1.0, 1.0, 1.0],
-        30:  [1.51, 1.21, 1.05, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-        40:  [1.40, 1.13, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-        50:  [1.30, 1.07, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-        60:  [1.25, 1.03, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-        70:  [1.20, 1.01, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-        80:  [1.16, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-        90:  [1.13, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-        100: [1.10, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-        200: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-        500: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-        1000:[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-    };
-
-    const kpTable2 = {
-        '1':     [8.00, 5.33, 4.00, 2.67, 2.00, 1.60, 1.33, 1.14],
-        '2':     [5.01, 3.44, 2.69, 1.90, 1.52, 1.24, 1.11, 1.03],
-        '3':     [2.94, 2.17, 1.80, 1.42, 1.23, 1.14, 1.08, 1.04],
-        '4':     [2.28, 1.73, 1.46, 1.19, 1.06, 1.04, 1.00, 0.97],
-        '5':     [1.31, 1.12, 1.02, 1.00, 0.98, 0.96, 0.94, 0.93],
-        '6-8':   [1.20, 1.00, 0.96, 0.95, 0.94, 0.93, 0.92, 0.91],
-        '9-10':  [1.10, 0.97, 0.91, 0.90, 0.90, 0.90, 0.90, 0.80],
-        '10-25': [0.80, 0.80, 0.80, 0.85, 0.85, 0.85, 0.90, 0.85],
-        '25-50': [0.75, 0.75, 0.75, 0.75, 0.70, 0.80, 0.85, 0.85],
-        '>50':   [0.65, 0.65, 0.65, 0.70, 0.70, 0.75, 0.80, 0.80]
-    };
-
-    function getKpSupply(n_eff, ku) {
-        const kuValues = [0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8];
-        if (n_eff >= 1000) return 1.0;
-        const nKeys = Object.keys(kpTable1).map(Number).sort((a,b) => a-b);
-        let lowerN = null, upperN = null;
-        for (let i = 0; i < nKeys.length; i++) {
-            if (nKeys[i] <= n_eff) lowerN = nKeys[i];
-            if (nKeys[i] >= n_eff && upperN === null) upperN = nKeys[i];
+        function formatValue(val) {
+            return Math.round(val * 10) / 10;
         }
-        if (lowerN === null) lowerN = nKeys[0];
-        if (upperN === null) upperN = nKeys[nKeys.length-1];
-        function getKpForN(n) {
-            const row = kpTable1[n];
+
+        function updateInputFromSlider() {
+            let val = parseFloat(slider.value);
+            val = formatValue(val);
+            input.value = val;
+            currentDisplay.innerText = val;
+            updateBars(val, lastIp, lastIpeak);
+            updateComparison();
+        }
+
+        function updateSliderFromInput() {
+            let rawValue = input.value.trim();
+            if (rawValue === '') { input.value = slider.value; return; }
+            let num = parseFloat(rawValue);
+            if (isNaN(num)) { input.value = slider.value; return; }
+            num = formatValue(num);
+            const min = parseFloat(slider.min);
+            const max = parseFloat(slider.max);
+            if (num < min) num = min;
+            if (num > max) num = max;
+            slider.value = num;
+            input.value = num;
+            currentDisplay.innerText = num;
+            updateBars(num, lastIp, lastIpeak);
+            updateComparison();
+        }
+
+        slider.addEventListener('input', updateInputFromSlider);
+        input.addEventListener('input', updateSliderFromInput);
+        input.addEventListener('blur', function() {
+            let val = parseFloat(input.value);
+            if (isNaN(val)) input.value = slider.value;
+            else updateSliderFromInput();
+        });
+
+        function updateComparison() {
+            const zad = parseFloat(input.value);
+            if (lastIp !== null && !isNaN(lastIp) && lastIp > 0) {
+                const ratio = zad / lastIp;
+                comparisonDiv.innerHTML = `Заданный ток: <span>${zad.toFixed(1)} А</span> | Расчётный I<sub>р</sub> = <span>${lastIp.toFixed(2)} А</span> | Отношение I<sub>зад</sub>/I<sub>р</sub> = <span>${ratio.toFixed(2)}</span>`;
+            } else {
+                comparisonDiv.innerHTML = `Заданный ток: <span>${zad.toFixed(1)} А</span>. Расчётный I<sub>р</sub> пока не рассчитан.`;
+            }
+        }
+
+        // ---------- Таблица ввода ЭП ----------
+        const tableBody = document.getElementById('epTableBody');
+        const addRowBtn = document.getElementById('addRowBtn');
+
+        function createRow(name = '', n = 1, pn = 1.0, ku = 0.14, cosφ = 0.5) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" placeholder="Наименование" value="${name}"></td>
+                <td><input type="number" min="1" step="1" value="${n}" class="n-input"></td>
+                <td><input type="number" min="0" step="0.1" value="${pn}" class="pn-input"></td>
+                <td><input type="number" min="0" max="1" step="0.01" value="${ku}" class="ku-input"></td>
+                <td><input type="number" min="0" max="1" step="0.01" value="${cosφ}" class="cos-input"></td>
+                <td><button class="delete-btn">✖</button></td>
+            `;
+            row.querySelector('.delete-btn').addEventListener('click', () => row.remove());
+            return row;
+        }
+
+        // Добавим несколько строк по умолчанию
+        for (let i = 0; i < 3; i++) {
+            tableBody.appendChild(createRow('Станок ' + (i+1), i+1, 5 + i*2, 0.14, 0.5));
+        }
+
+        addRowBtn.addEventListener('click', () => {
+            tableBody.appendChild(createRow('', 1, 1, 0.14, 0.5));
+        });
+
+        // ---------- Таблицы коэффициентов Kр ----------
+        const kpTable1 = {
+            1:   [8.00, 5.33, 4.00, 2.67, 2.00, 1.60, 1.33, 1.14, 1.02],
+            2:   [6.22, 4.33, 3.39, 2.45, 1.98, 1.60, 1.33, 1.14, 1.03],
+            3:   [4.05, 2.89, 2.31, 1.74, 1.45, 1.34, 1.22, 1.14, 1.04],
+            4:   [3.24, 2.35, 1.91, 1.47, 1.25, 1.21, 1.12, 1.06, 1.0],
+            5:   [2.84, 2.09, 1.72, 1.35, 1.16, 1.16, 1.08, 1.03, 1.06],
+            6:   [2.64, 1.96, 1.62, 1.28, 1.11, 1.13, 1.06, 1.01, 1.07],
+            7:   [2.49, 1.86, 1.54, 1.23, 1.12, 1.10, 1.04, 1.0, 1.08],
+            8:   [2.37, 1.78, 1.48, 1.19, 1.10, 1.08, 1.02, 1.0, 1.09],
+            9:   [2.27, 1.71, 1.43, 1.16, 1.09, 1.07, 1.01, 1.0, 1.0],
+            10:  [2.18, 1.65, 1.39, 1.13, 1.07, 1.05, 1.0, 1.0, 1.0],
+            12:  [2.11, 1.61, 1.35, 1.10, 1.06, 1.04, 1.0, 1.0, 1.0],
+            15:  [1.99, 1.52, 1.29, 1.06, 1.04, 1.01, 1.0, 1.0, 1.0],
+            20:  [1.72, 1.35, 1.16, 1.01, 1.0, 1.0, 1.0, 1.0, 1.0],
+            30:  [1.51, 1.21, 1.05, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            40:  [1.40, 1.13, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            50:  [1.30, 1.07, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            60:  [1.25, 1.03, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            70:  [1.20, 1.01, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            80:  [1.16, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            90:  [1.13, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            100: [1.10, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            200: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            500: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            1000:[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+        };
+
+        const kpTable2 = {
+            '1':     [8.00, 5.33, 4.00, 2.67, 2.00, 1.60, 1.33, 1.14],
+            '2':     [5.01, 3.44, 2.69, 1.90, 1.52, 1.24, 1.11, 1.03],
+            '3':     [2.94, 2.17, 1.80, 1.42, 1.23, 1.14, 1.08, 1.04],
+            '4':     [2.28, 1.73, 1.46, 1.19, 1.06, 1.04, 1.00, 0.97],
+            '5':     [1.31, 1.12, 1.02, 1.00, 0.98, 0.96, 0.94, 0.93],
+            '6-8':   [1.20, 1.00, 0.96, 0.95, 0.94, 0.93, 0.92, 0.91],
+            '9-10':  [1.10, 0.97, 0.91, 0.90, 0.90, 0.90, 0.90, 0.80],
+            '10-25': [0.80, 0.80, 0.80, 0.85, 0.85, 0.85, 0.90, 0.85],
+            '25-50': [0.75, 0.75, 0.75, 0.75, 0.70, 0.80, 0.85, 0.85],
+            '>50':   [0.65, 0.65, 0.65, 0.70, 0.70, 0.75, 0.80, 0.80]
+        };
+
+        function getKpSupply(n_eff, ku) {
+            const kuValues = [0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8];
+            if (n_eff >= 1000) return 1.0;
+            const nKeys = Object.keys(kpTable1).map(Number).sort((a,b) => a-b);
+            let lowerN = null, upperN = null;
+            for (let i = 0; i < nKeys.length; i++) {
+                if (nKeys[i] <= n_eff) lowerN = nKeys[i];
+                if (nKeys[i] >= n_eff && upperN === null) upperN = nKeys[i];
+            }
+            if (lowerN === null) lowerN = nKeys[0];
+            if (upperN === null) upperN = nKeys[nKeys.length-1];
+            function getKpForN(n) {
+                const row = kpTable1[n];
+                if (ku <= kuValues[0]) return row[0];
+                if (ku >= kuValues[kuValues.length-1]) return row[row.length-1];
+                for (let j = 0; j < kuValues.length-1; j++) {
+                    if (ku >= kuValues[j] && ku <= kuValues[j+1]) {
+                        const t = (ku - kuValues[j]) / (kuValues[j+1] - kuValues[j]);
+                        return row[j] * (1 - t) + row[j+1] * t;
+                    }
+                }
+                return row[row.length-1];
+            }
+            const kpLow = getKpForN(lowerN);
+            const kpHigh = getKpForN(upperN);
+            if (lowerN === upperN) return kpLow;
+            const t = (n_eff - lowerN) / (upperN - lowerN);
+            return kpLow * (1 - t) + kpHigh * t;
+        }
+
+        function getKpMain(n_eff, ku) {
+            const kuValues = [0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7];
+            let rangeKey = '>50';
+            if (n_eff === 1) rangeKey = '1';
+            else if (n_eff === 2) rangeKey = '2';
+            else if (n_eff === 3) rangeKey = '3';
+            else if (n_eff === 4) rangeKey = '4';
+            else if (n_eff === 5) rangeKey = '5';
+            else if (n_eff >= 6 && n_eff <= 8) rangeKey = '6-8';
+            else if (n_eff >= 9 && n_eff <= 10) rangeKey = '9-10';
+            else if (n_eff > 10 && n_eff <= 25) rangeKey = '10-25';
+            else if (n_eff > 25 && n_eff <= 50) rangeKey = '25-50';
+            else if (n_eff > 50) rangeKey = '>50';
+            const row = kpTable2[rangeKey];
+            if (!row) return 1.0;
             if (ku <= kuValues[0]) return row[0];
             if (ku >= kuValues[kuValues.length-1]) return row[row.length-1];
             for (let j = 0; j < kuValues.length-1; j++) {
@@ -522,158 +685,128 @@
             }
             return row[row.length-1];
         }
-        const kpLow = getKpForN(lowerN);
-        const kpHigh = getKpForN(upperN);
-        if (lowerN === upperN) return kpLow;
-        const t = (n_eff - lowerN) / (upperN - lowerN);
-        return kpLow * (1 - t) + kpHigh * t;
-    }
 
-    function getKpMain(n_eff, ku) {
-        const kuValues = [0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7];
-        let rangeKey = '>50';
-        if (n_eff === 1) rangeKey = '1';
-        else if (n_eff === 2) rangeKey = '2';
-        else if (n_eff === 3) rangeKey = '3';
-        else if (n_eff === 4) rangeKey = '4';
-        else if (n_eff === 5) rangeKey = '5';
-        else if (n_eff >= 6 && n_eff <= 8) rangeKey = '6-8';
-        else if (n_eff >= 9 && n_eff <= 10) rangeKey = '9-10';
-        else if (n_eff > 10 && n_eff <= 25) rangeKey = '10-25';
-        else if (n_eff > 25 && n_eff <= 50) rangeKey = '25-50';
-        else if (n_eff > 50) rangeKey = '>50';
-        const row = kpTable2[rangeKey];
-        if (!row) return 1.0;
-        if (ku <= kuValues[0]) return row[0];
-        if (ku >= kuValues[kuValues.length-1]) return row[row.length-1];
-        for (let j = 0; j < kuValues.length-1; j++) {
-            if (ku >= kuValues[j] && ku <= kuValues[j+1]) {
-                const t = (ku - kuValues[j]) / (kuValues[j+1] - kuValues[j]);
-                return row[j] * (1 - t) + row[j+1] * t;
+        // ---------- Основной расчёт ----------
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            const rows = tableBody.querySelectorAll('tr');
+            let sumPn = 0;
+            let sumKuPn = 0;
+            let sumKuPnTg = 0;
+            let sumNPn2 = 0;
+            let maxPn = 0;
+            let cosMax = 1;
+            let kuMax = 0;
+            let totalN = 0;
+
+            for (let row of rows) {
+                const inputs = row.querySelectorAll('input');
+                const n = parseFloat(inputs[1].value) || 0;
+                const pn = parseFloat(inputs[2].value) || 0;
+                const ku = parseFloat(inputs[3].value) || 0;
+                const cosφ = parseFloat(inputs[4].value) || 0;
+
+                if (n <= 0 || pn <= 0) continue;
+
+                const tgφ = Math.sqrt(1 - cosφ*cosφ) / cosφ;
+                if (!isFinite(tgφ)) continue;
+
+                const Pn = n * pn;
+                const kuPn = ku * Pn;
+                const kuPnTg = kuPn * tgφ;
+                const nPn2 = n * pn * pn;
+
+                sumPn += Pn;
+                sumKuPn += kuPn;
+                sumKuPnTg += kuPnTg;
+                sumNPn2 += nPn2;
+                totalN += n;
+
+                if (pn > maxPn) {
+                    maxPn = pn;
+                    cosMax = cosφ;
+                    kuMax = ku;
+                }
             }
-        }
-        return row[row.length-1];
-    }
 
-    // ---------- Основной расчёт ----------
-    document.getElementById('calculateBtn').addEventListener('click', function() {
-        const rows = tableBody.querySelectorAll('tr');
-        let sumPn = 0;
-        let sumKuPn = 0;
-        let sumKuPnTg = 0;
-        let sumNPn2 = 0;
-        let maxPn = 0;
-        let cosMax = 1;
-        let kuMax = 0;
-        let totalN = 0;
-
-        for (let row of rows) {
-            const inputs = row.querySelectorAll('input');
-            const n = parseFloat(inputs[1].value) || 0;
-            const pn = parseFloat(inputs[2].value) || 0;
-            const ku = parseFloat(inputs[3].value) || 0;
-            const cosφ = parseFloat(inputs[4].value) || 0;
-
-            if (n <= 0 || pn <= 0) continue;
-
-            const tgφ = Math.sqrt(1 - cosφ*cosφ) / cosφ;
-            if (!isFinite(tgφ)) continue;
-
-            const Pn = n * pn;
-            const kuPn = ku * Pn;
-            const kuPnTg = kuPn * tgφ;
-            const nPn2 = n * pn * pn;
-
-            sumPn += Pn;
-            sumKuPn += kuPn;
-            sumKuPnTg += kuPnTg;
-            sumNPn2 += nPn2;
-            totalN += n;
-
-            if (pn > maxPn) {
-                maxPn = pn;
-                cosMax = cosφ;
-                kuMax = ku;
+            if (sumPn === 0) {
+                alert('Введите корректные данные электроприёмников');
+                return;
             }
-        }
 
-        if (sumPn === 0) {
-            alert('Введите корректные данные электроприёмников');
-            return;
-        }
+            const groupKu = sumKuPn / sumPn;
+            let nEff = (sumPn * sumPn) / sumNPn2;
+            nEff = Math.floor(nEff);
+            if (nEff > totalN) nEff = totalN;
 
-        const groupKu = sumKuPn / sumPn;
-        let nEff = (sumPn * sumPn) / sumNPn2;
-        nEff = Math.floor(nEff);
-        if (nEff > totalN) nEff = totalN;
+            let minPn = Infinity;
+            rows.forEach(row => {
+                const pn = parseFloat(row.querySelectorAll('input')[2].value);
+                if (pn > 0 && pn < minPn) minPn = pn;
+            });
+            if (maxPn / minPn <= 3) nEff = totalN;
 
-        // Находим минимальную мощность для проверки условия
-        let minPn = Infinity;
-        rows.forEach(row => {
-            const pn = parseFloat(row.querySelectorAll('input')[2].value);
-            if (pn > 0 && pn < minPn) minPn = pn;
-        });
-        if (maxPn / minPn <= 3) nEff = totalN;
-
-        const networkType = document.querySelector('input[name="networkType"]:checked').value;
-        let Kp;
-        if (networkType === 'supply') {
-            Kp = getKpSupply(nEff, groupKu);
-        } else {
-            Kp = getKpMain(nEff, groupKu);
-        }
-        if (Kp === undefined || isNaN(Kp)) Kp = 1.0;
-
-        let Pp = Kp * sumKuPn;
-        if (Pp < maxPn) Pp = maxPn;
-
-        let Qp;
-        if (networkType === 'supply') {
-            if (nEff <= 10) {
-                Qp = 1.1 * sumKuPnTg;
+            const networkType = document.querySelector('input[name="networkType"]:checked').value;
+            let Kp;
+            if (networkType === 'supply') {
+                Kp = getKpSupply(nEff, groupKu);
             } else {
-                Qp = sumKuPnTg;
+                Kp = getKpMain(nEff, groupKu);
             }
-        } else {
-            const avgTg = sumKuPnTg / sumKuPn;
-            Qp = Pp * avgTg;
-        }
+            if (Kp === undefined || isNaN(Kp)) Kp = 1.0;
 
-        const Sp = Math.sqrt(Pp*Pp + Qp*Qp);
-        const U = parseFloat(document.getElementById('voltage').value) / 1000; // В -> кВ
-        const Ip = Sp / (Math.sqrt(3) * U);
+            let Pp = Kp * sumKuPn;
+            if (Pp < maxPn) Pp = maxPn;
 
-        // Расчёт пикового тока
-        const kpStart = parseFloat(document.getElementById('kpStart').value) || 6.5;
-        let Ipeak = 0;
-        if (maxPn > 0 && cosMax > 0) {
-            const InomMax = maxPn / (Math.sqrt(3) * U * cosMax);
-            const IstartMax = kpStart * InomMax;
-            Ipeak = IstartMax + Ip - InomMax * kuMax;
-        }
+            let Qp;
+            if (networkType === 'supply') {
+                if (nEff <= 10) {
+                    Qp = 1.1 * sumKuPnTg;
+                } else {
+                    Qp = sumKuPnTg;
+                }
+            } else {
+                const avgTg = sumKuPnTg / sumKuPn;
+                Qp = Pp * avgTg;
+            }
 
-        // Сохраняем Iр для сравнения
-        lastIp = Ip;
+            const Sp = Math.sqrt(Pp*Pp + Qp*Qp);
+            const U = parseFloat(document.getElementById('voltage').value) / 1000; // В -> кВ
+            const Ip = Sp / (Math.sqrt(3) * U);
 
-        // Отображение результатов
-        document.getElementById('sumPn').innerText = sumPn.toFixed(2);
-        document.getElementById('sumKuPn').innerText = sumKuPn.toFixed(2);
-        document.getElementById('sumKuPnTg').innerText = sumKuPnTg.toFixed(2);
-        document.getElementById('sumNPn2').innerText = sumNPn2.toFixed(2);
-        document.getElementById('groupKu').innerText = groupKu.toFixed(3);
-        document.getElementById('nEff').innerText = nEff;
-        document.getElementById('kp').innerText = Kp.toFixed(3);
-        document.getElementById('pp').innerText = Pp.toFixed(2);
-        document.getElementById('qp').innerText = Qp.toFixed(2);
-        document.getElementById('sp').innerText = Sp.toFixed(2);
-        document.getElementById('ip').innerText = Ip.toFixed(2);
-        document.getElementById('ipeak').innerText = Ipeak.toFixed(2);
+            const kpStart = parseFloat(document.getElementById('kpStart').value) || 6.5;
+            let Ipeak = 0;
+            if (maxPn > 0 && cosMax > 0) {
+                const InomMax = maxPn / (Math.sqrt(3) * U * cosMax);
+                const IstartMax = kpStart * InomMax;
+                Ipeak = IstartMax + Ip - InomMax * kuMax;
+            }
 
-        updateComparison();
-    });
+            // Сохраняем для последующего использования
+            lastIp = Ip;
+            lastIpeak = Ipeak;
 
-    // Инициализация сравнения
-    updateComparison();
+            // Обновляем числовые результаты
+            document.getElementById('sumPn').innerText = sumPn.toFixed(2);
+            document.getElementById('sumKuPn').innerText = sumKuPn.toFixed(2);
+            document.getElementById('sumKuPnTg').innerText = sumKuPnTg.toFixed(2);
+            document.getElementById('sumNPn2').innerText = sumNPn2.toFixed(2);
+            document.getElementById('groupKu').innerText = groupKu.toFixed(3);
+            document.getElementById('nEff').innerText = nEff;
+            document.getElementById('kp').innerText = Kp.toFixed(3);
+            document.getElementById('pp').innerText = Pp.toFixed(2);
+            document.getElementById('qp').innerText = Qp.toFixed(2);
+            document.getElementById('sp').innerText = Sp.toFixed(2);
+            document.getElementById('ip').innerText = Ip.toFixed(2);
+            document.getElementById('ipeak').innerText = Ipeak.toFixed(2);
+
+            // Обновляем столбцы и сравнение
+            updateBars(input.value, lastIp, lastIpeak);
+            updateComparison();
+        });
+
+        // Инициализация: показать начальный заданный ток
+        updateBars(0.1, null, null);
+    })();
 </script>
 </body>
 </html>
