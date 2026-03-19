@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Визуализация токов — названия сверху, значения снизу, высота меняется</title>
+    <title>Расчёт токов + пример по нагреву кабеля</title>
     <style>
         * {
             box-sizing: border-box;
@@ -27,7 +27,7 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow-x: auto;
         }
-        h1, h2 {
+        h1, h2, h3 {
             color: #333;
             font-weight: 300;
             margin-top: 0;
@@ -43,7 +43,7 @@
             font-style: italic;
         }
 
-        /* Контейнер для трёх столбцов */
+        /* Основные три столбца */
         .bars-container {
             display: flex;
             justify-content: space-around;
@@ -64,17 +64,15 @@
             height: 100%;
             position: relative;
         }
-        /* Названия столбцов вверху (прижаты к верхней границе) */
         .bar-label {
             font-weight: 700;
             color: #444;
             font-size: 1.2rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: auto; /* прижимает к верху, так как wrapper flex column */
+            margin-bottom: auto;
             padding-top: 10px;
         }
-        /* Столбец — высота управляется через JS, минимальная 8px для видимости */
         .bar {
             width: 70px;
             border-radius: 15px 15px 5px 5px;
@@ -91,7 +89,6 @@
         #barPeak {
             background: linear-gradient(45deg, #a18cd1, #fbc2eb);
         }
-        /* Числовые значения под столбцами */
         .bar-value {
             font-size: 1.3rem;
             font-weight: 700;
@@ -103,6 +100,90 @@
             font-size: 0.9rem;
             color: #777;
             margin-left: 3px;
+        }
+
+        /* Дополнительный блок для примера по нагреву */
+        .example-section {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f0f3ff;
+            border-radius: 20px;
+            border: 2px dashed #667eea;
+        }
+        .example-title {
+            font-size: 1.2rem;
+            color: #444;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        .example-bars {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            background: white;
+            border-radius: 20px;
+            padding: 15px 20px 20px 20px;
+            height: 200px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .example-bar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100px;
+            height: 100%;
+        }
+        .example-bar-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 1rem;
+            margin-bottom: auto;
+            padding-top: 5px;
+        }
+        .example-bar {
+            width: 50px;
+            border-radius: 10px 10px 5px 5px;
+            transition: height 0.3s ease;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            min-height: 5px;
+        }
+        #barCable {
+            background: linear-gradient(45deg, #f9ca24, #f6e58d);
+        }
+        #barCableRp {
+            background: linear-gradient(45deg, #4facfe, #00c6fb);
+        }
+        #barCablePeak {
+            background: linear-gradient(45deg, #a18cd1, #fbc2eb);
+        }
+        .example-bar-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            margin-top: 8px;
+        }
+        .cable-selector {
+            margin: 20px 0 10px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .cable-selector select, .cable-selector button {
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+        .cable-selector button {
+            background: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .cable-selector button:hover {
+            background: #5a67d8;
         }
 
         .slider-container {
@@ -355,10 +436,10 @@
 </head>
 <body>
 <div class="card">
-    <h1>⚡ Визуализация токов (высота меняется!) ⚡</h1>
-    <div class="subtitle">Названия сверху, значения снизу, высота столбцов изменяется</div>
+    <h1>⚡ Расчёт токов + пример по нагреву кабеля ⚡</h1>
+    <div class="subtitle">Основные столбцы (Iзад, Iр, Iпик) и пример граничных токов по нагреву</div>
 
-    <!-- Три вертикальные полоски -->
+    <!-- Три основных столбца -->
     <div class="bars-container">
         <div class="bar-wrapper">
             <div class="bar-label">I<sub>зад</sub></div>
@@ -375,10 +456,6 @@
             <div class="bar" id="barPeak" style="height: 8px;"></div>
             <div class="bar-value" id="barPeakValue">— <span class="bar-unit">А</span></div>
         </div>
-    </div>
-    <!-- Пояснение по шкале -->
-    <div style="text-align: center; margin-top: -20px; margin-bottom: 20px; color: #888; font-size: 0.9rem;">
-        ⬆️ Высота столбцов пропорциональна 2500 А (макс). Названия закреплены вверху.
     </div>
 
     <!-- Блок с ползунком тока -->
@@ -456,14 +533,48 @@
         <div class="result-item"><span class="label">I<sub>пик</sub> (А)</span><span class="value" id="ipeak">0</span></div>
     </div>
 
+    <!-- Дополнительный блок: пример граничных значений по нагреву -->
+    <div class="example-section">
+        <div class="example-title">📌 Пример: допустимые токи кабеля (для сравнения с Iр и Iпик)</div>
+        <div class="cable-selector">
+            <label for="cableSelect">Выберите сечение кабеля (медь, 1кВ):</label>
+            <select id="cableSelect">
+                <option value="16">16 мм² (Iдоп = 75 А)</option>
+                <option value="25" selected>25 мм² (Iдоп = 100 А)</option>
+                <option value="35">35 мм² (Iдоп = 125 А)</option>
+            </select>
+            <button id="applyCableBtn">Применить</button>
+        </div>
+        <div class="example-bars">
+            <div class="example-bar-wrapper">
+                <div class="example-bar-label">I<sub>доп</sub></div>
+                <div class="example-bar" id="barCable" style="height: 5px;"></div>
+                <div class="example-bar-value" id="barCableValue">100 <span style="font-size:0.8rem;">А</span></div>
+            </div>
+            <div class="example-bar-wrapper">
+                <div class="example-bar-label">I<sub>р</sub></div>
+                <div class="example-bar" id="barCableRp" style="height: 5px;"></div>
+                <div class="example-bar-value" id="barCableRpValue">— <span style="font-size:0.8rem;">А</span></div>
+            </div>
+            <div class="example-bar-wrapper">
+                <div class="example-bar-label">I<sub>пик</sub></div>
+                <div class="example-bar" id="barCablePeak" style="height: 5px;"></div>
+                <div class="example-bar-value" id="barCablePeakValue">— <span style="font-size:0.8rem;">А</span></div>
+            </div>
+        </div>
+        <p style="margin: 10px 0 0; font-size:0.9rem; color:#555;">
+            * Высота столбцов пропорциональна 2500 А (как в основных графиках). I<sub>доп</sub> — допустимый ток выбранного кабеля (справочно).
+        </p>
+    </div>
+
     <div class="note">
-        ⚙️ Названия столбцов закреплены вверху. Высота меняется плавно. Если столбцы не меняют высоту — обновите страницу или проверьте консоль.
+        ⚙️ Основные столбцы: Iзад (ползунок), Iр и Iпик (расчёт). Внизу — пример граничных токов по нагреву для выбранного сечения.
     </div>
 </div>
 
 <script>
     (function() {
-        // ---------- Элементы для столбцов ----------
+        // ---------- Основные столбцы ----------
         const barZad = document.getElementById('barZad');
         const barRp = document.getElementById('barRp');
         const barPeak = document.getElementById('barPeak');
@@ -471,48 +582,62 @@
         const barRpValue = document.getElementById('barRpValue');
         const barPeakValue = document.getElementById('barPeakValue');
 
-        const MAX_BAR = 2500; // максимальное значение для шкалы (высота 100% соответствует 2500 А)
+        // Столбцы для примера по нагреву
+        const barCable = document.getElementById('barCable');
+        const barCableRp = document.getElementById('barCableRp');
+        const barCablePeak = document.getElementById('barCablePeak');
+        const barCableValue = document.getElementById('barCableValue');
+        const barCableRpValue = document.getElementById('barCableRpValue');
+        const barCablePeakValue = document.getElementById('barCablePeakValue');
 
-        // Функция обновления высоты и значений столбцов
+        const MAX_BAR = 2500;
+
         function updateBars(zad, rp, peak) {
-            // Заданный ток
+            // Основные
             const zadNum = parseFloat(zad) || 0;
             let zadPercent = (zadNum / MAX_BAR) * 100;
             zadPercent = Math.max(3, Math.min(100, zadPercent));
             barZad.style.height = zadPercent + '%';
             barZadValue.innerHTML = zadNum.toFixed(1) + ' <span class="bar-unit">А</span>';
 
-            // Расчётный ток
             if (rp !== null && !isNaN(rp) && rp > 0) {
                 let rpPercent = (rp / MAX_BAR) * 100;
                 rpPercent = Math.max(3, Math.min(100, rpPercent));
                 barRp.style.height = rpPercent + '%';
                 barRpValue.innerHTML = rp.toFixed(2) + ' <span class="bar-unit">А</span>';
+                // Примерные столбцы тоже обновляем (они показывают те же Iр и Iпик)
+                barCableRpValue.innerHTML = rp.toFixed(2) + ' <span style="font-size:0.8rem;">А</span>';
+                barCableRp.style.height = Math.max(3, Math.min(100, (rp / MAX_BAR) * 100)) + '%';
             } else {
                 barRp.style.height = '3%';
                 barRpValue.innerHTML = '— <span class="bar-unit">А</span>';
+                barCableRpValue.innerHTML = '— <span style="font-size:0.8rem;">А</span>';
+                barCableRp.style.height = '3%';
             }
 
-            // Пиковый ток
             if (peak !== null && !isNaN(peak) && peak > 0) {
                 let peakPercent = (peak / MAX_BAR) * 100;
                 peakPercent = Math.max(3, Math.min(100, peakPercent));
                 barPeak.style.height = peakPercent + '%';
                 barPeakValue.innerHTML = peak.toFixed(2) + ' <span class="bar-unit">А</span>';
+                barCablePeakValue.innerHTML = peak.toFixed(2) + ' <span style="font-size:0.8rem;">А</span>';
+                barCablePeak.style.height = Math.max(3, Math.min(100, (peak / MAX_BAR) * 100)) + '%';
             } else {
                 barPeak.style.height = '3%';
                 barPeakValue.innerHTML = '— <span class="bar-unit">А</span>';
+                barCablePeakValue.innerHTML = '— <span style="font-size:0.8rem;">А</span>';
+                barCablePeak.style.height = '3%';
             }
         }
 
-        // ---------- Синхронизация ползунка тока ----------
+        // ---------- Ползунок ----------
         const slider = document.getElementById('currentSlider');
         const input = document.getElementById('currentInput');
         const currentDisplay = document.getElementById('currentDisplay');
         const comparisonDiv = document.getElementById('comparison');
 
-        let lastIp = null;      // последний рассчитанный Iр
-        let lastIpeak = null;   // последний рассчитанный Iпик
+        let lastIp = null;
+        let lastIpeak = null;
 
         function formatValue(val) {
             return Math.round(val * 10) / 10;
@@ -580,7 +705,6 @@
             return row;
         }
 
-        // Добавим несколько строк по умолчанию
         for (let i = 0; i < 3; i++) {
             tableBody.appendChild(createRow('Станок ' + (i+1), i+1, 5 + i*2, 0.14, 0.5));
         }
@@ -770,7 +894,7 @@
             }
 
             const Sp = Math.sqrt(Pp*Pp + Qp*Qp);
-            const U = parseFloat(document.getElementById('voltage').value) / 1000; // В -> кВ
+            const U = parseFloat(document.getElementById('voltage').value) / 1000;
             const Ip = Sp / (Math.sqrt(3) * U);
 
             const kpStart = parseFloat(document.getElementById('kpStart').value) || 6.5;
@@ -781,11 +905,9 @@
                 Ipeak = IstartMax + Ip - InomMax * kuMax;
             }
 
-            // Сохраняем для последующего использования
             lastIp = Ip;
             lastIpeak = Ipeak;
 
-            // Обновляем числовые результаты
             document.getElementById('sumPn').innerText = sumPn.toFixed(2);
             document.getElementById('sumKuPn').innerText = sumKuPn.toFixed(2);
             document.getElementById('sumKuPnTg').innerText = sumKuPnTg.toFixed(2);
@@ -799,12 +921,30 @@
             document.getElementById('ip').innerText = Ip.toFixed(2);
             document.getElementById('ipeak').innerText = Ipeak.toFixed(2);
 
-            // Обновляем столбцы и сравнение
             updateBars(input.value, lastIp, lastIpeak);
             updateComparison();
         });
 
-        // Инициализация: показать начальный заданный ток
+        // ---------- Пример с кабелем ----------
+        const cableSelect = document.getElementById('cableSelect');
+        const applyCableBtn = document.getElementById('applyCableBtn');
+
+        function updateCableBar() {
+            const selected = cableSelect.value;
+            let idop;
+            if (selected === '16') idop = 75;
+            else if (selected === '25') idop = 100;
+            else idop = 125;
+            barCableValue.innerHTML = idop + ' <span style="font-size:0.8rem;">А</span>';
+            let percent = (idop / MAX_BAR) * 100;
+            percent = Math.max(3, Math.min(100, percent));
+            barCable.style.height = percent + '%';
+        }
+
+        applyCableBtn.addEventListener('click', updateCableBar);
+        updateCableBar(); // при загрузке
+
+        // Инициализация основных столбцов
         updateBars(0.1, null, null);
     })();
 </script>
