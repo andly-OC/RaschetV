@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Расчёт токов по РТМ + ползунки для всех параметров</title>
+    <title>Расчёт токов по РТМ — схема сверху, таблицы снизу</title>
     <style>
         * {
             box-sizing: border-box;
@@ -166,131 +166,45 @@
         }
         .comparison span { font-weight: 700; color: #667eea; }
 
-        /* Схема двигателей */
+        /* Схема двигателей — сверху */
         .motor-schema {
             background: #f0f3ff;
             border-radius: 20px;
-            padding: 20px 20px 30px 20px;
+            padding: 20px;
             margin: 30px 0;
             border: 1px solid #d0d9ff;
             position: relative;
+            min-height: 320px;
         }
-        .motor-schema h2 { text-align: center; margin-top: 0; margin-bottom: 30px; color: #444; }
-        .schema-container { 
-            position: relative; 
-            min-height: 720px; /* увеличено для 4 ползунков */
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-            align-items: flex-end;
-        }
-
-        /* Подписи строк слева (4 строки) */
-        .row-labels {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            height: 100%;
-            margin-right: 8px;
-            padding-bottom: 180px; /* поднято для ползунков */
-            font-weight: 600;
-            color: #333;
-            background: #f0f3ff;
-            border-radius: 10px;
-            border: 1px solid #aaa;
-            overflow: hidden;
-            align-self: flex-end;
-            position: relative;
-            z-index: 3;
-        }
-        .row-label-item {
-            height: 28px;
-            line-height: 28px;
-            padding: 0 10px;
-            border-bottom: 1px dashed #aaa;
-            white-space: nowrap;
-        }
-        .row-label-item:last-child { border-bottom: none; }
-        .row-label-item span { color: #667eea; font-weight: 700; }
-
-        /* Контейнер для колонок двигателей */
-        .motors-columns {
-            display: flex;
-            justify-content: space-around;
-            flex: 1;
-            position: relative;
-            z-index: 3;
-        }
-        .motor-column {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 140px;
-            margin: 0 2px;
-        }
-        .motor-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        .motor-table td {
-            border: 2px solid #4a6fa5;
-            height: 28px;
-            padding: 2px;
-            background-color: #fefefe;
+        .motor-schema h2 {
             text-align: center;
-            vertical-align: middle;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #444;
         }
-        .table-input {
+        .schema-container {
+            position: relative;
             width: 100%;
-            height: 100%;
-            border: none;
-            background: transparent;
-            text-align: center;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #333;
-            outline: none;
-            padding: 0;
+            min-height: 280px;
         }
-        .table-input:focus {
-            background: #e6f0ff;
-            border-radius: 4px;
-        }
-
-        /* Ползунки под таблицей (для всех 4 параметров) */
-        .sliders-under {
-            width: 100%;
-            margin-top: 5px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .slider-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
-        .slider-item input[type=range] { width: 100%; }
-
         /* Ряд кружков */
         .motors-row {
             display: flex;
             justify-content: space-around;
             position: absolute;
-            bottom: 360px; /* поднято для ползунков */
+            bottom: 80px; /* над линиями */
             left: 0;
             right: 0;
             z-index: 4;
             padding: 0 20px;
+            pointer-events: none;
         }
         .motor-item {
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 140px;
+            pointer-events: auto;
         }
         .motor-circle {
             width: 40px;
@@ -306,7 +220,6 @@
             color: #333;
             margin-bottom: 5px;
         }
-
         /* Линии SVG */
         .lines-svg {
             position: absolute;
@@ -342,7 +255,107 @@
         .line-values span { color: #667eea; font-weight: 700; }
         .line-values .value { font-size: 1.2rem; margin-left: 5px; }
 
-        /* Настройки (только тип сети и напряжение) */
+        /* Таблицы параметров — внизу */
+        .params-container {
+            background: #f0f3ff;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px 0 30px;
+            border: 1px solid #d0d9ff;
+        }
+        .params-container h2 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #444;
+        }
+        .params-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px;
+        }
+        /* Подписи строк */
+        .param-labels {
+            display: grid;
+            grid-template-rows: repeat(4, 28px);
+            gap: 0;
+            align-items: center;
+            background: #f0f3ff;
+            border-radius: 10px;
+            border: 1px solid #aaa;
+            overflow: hidden;
+            height: fit-content;
+        }
+        .param-label-item {
+            height: 28px;
+            line-height: 28px;
+            padding: 0 10px;
+            border-bottom: 1px dashed #aaa;
+            white-space: nowrap;
+            font-weight: 600;
+            color: #333;
+        }
+        .param-label-item:last-child { border-bottom: none; }
+        .param-label-item span { color: #667eea; font-weight: 700; }
+
+        /* Колонки таблиц */
+        .tables-row {
+            display: flex;
+            justify-content: space-around;
+            gap: 5px;
+        }
+        .motor-params {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 140px;
+        }
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .param-table td {
+            border: 2px solid #4a6fa5;
+            height: 28px;
+            padding: 2px;
+            background-color: #fefefe;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .param-input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            outline: none;
+            padding: 0;
+        }
+        .param-input:focus {
+            background: #e6f0ff;
+            border-radius: 4px;
+        }
+        /* Ползунки под таблицей */
+        .sliders-under {
+            width: 100%;
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .slider-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        .slider-item input[type=range] { width: 100%; }
+
         .settings {
             background: #f9f9f9;
             border-radius: 15px;
@@ -412,7 +425,7 @@
 <body>
 <div class="card">
     <h1>⚡ Расчёт токов по РТМ 36.18.32.4-92 ⚡</h1>
-    <div class="subtitle">Ползунки для всех параметров (P, Kи, cos φ, Kп)</div>
+    <div class="subtitle">Схема двигателей сверху, таблицы параметров снизу</div>
 
     <!-- Три столбца -->
     <div class="bars-container">
@@ -429,21 +442,10 @@
         <div class="comparison" id="comparison">Заданный ток: <span id="currentDisplay">0.1</span> А. Расчётный I<sub>р</sub> пока не рассчитан.</div>
     </div>
 
-    <!-- Схема двигателей -->
+    <!-- Схема двигателей (сверху) -->
     <div class="motor-schema">
         <h2>Схема подключения 6 двигателей</h2>
         <div class="schema-container" id="schemaContainer">
-            <!-- Подписи строк слева (4 строки) -->
-            <div class="row-labels">
-                <div class="row-label-item"><span>P</span> (кВт)</div>
-                <div class="row-label-item"><span>K<sub>и</sub></span></div>
-                <div class="row-label-item"><span>cos φ</span></div>
-                <div class="row-label-item"><span>K<sub>п</sub></span></div>
-            </div>
-
-            <!-- Колонки двигателей -->
-            <div class="motors-columns" id="motorsColumns"></div>
-
             <!-- Ряд кружков -->
             <div class="motors-row" id="motorsRow"></div>
 
@@ -453,12 +455,29 @@
                 <div>I<sub>пик</sub> = <span class="value" id="lineIpeak">0.00</span> А</div>
             </div>
 
-            <!-- SVG строится динамически -->
+            <!-- SVG линии -->
             <svg class="lines-svg" id="schemaSvg"></svg>
         </div>
     </div>
 
-    <!-- Настройки расчёта (только тип сети и напряжение) -->
+    <!-- Таблицы параметров (внизу) -->
+    <div class="params-container">
+        <h2>Параметры двигателей</h2>
+        <div class="params-grid">
+            <!-- Левая колонка: подписи строк -->
+            <div class="param-labels">
+                <div class="param-label-item"><span>P</span> (кВт)</div>
+                <div class="param-label-item"><span>K<sub>и</sub></span></div>
+                <div class="param-label-item"><span>cos φ</span></div>
+                <div class="param-label-item"><span>K<sub>п</sub></span></div>
+            </div>
+
+            <!-- Правая колонка: таблицы -->
+            <div class="tables-row" id="tablesRow"></div>
+        </div>
+    </div>
+
+    <!-- Настройки расчёта -->
     <div class="settings">
         <div class="radio-group">
             <label><input type="radio" name="networkType" value="supply" checked> Питающая сеть до 1 кВ (10 мин)</label>
@@ -479,13 +498,13 @@
     </div>
 
     <div class="note">
-        ⚙️ Для каждого параметра под таблицей есть свой ползунок. Значения синхронизированы с ячейками.
+        ⚙️ Схема двигателей сверху, таблицы параметров снизу. Ползунки под таблицами позволяют изменять значения.
     </div>
 </div>
 
 <script>
     (function() {
-        const motorsColumns = document.getElementById('motorsColumns');
+        const tablesRow = document.getElementById('tablesRow');
         const motorsRow = document.getElementById('motorsRow');
         const schemaContainer = document.getElementById('schemaContainer');
         const schemaSvg = document.getElementById('schemaSvg');
@@ -510,13 +529,13 @@
         const defaultCos = 0.5;
         const defaultKp = 6.5;
 
-        // Создаём колонки двигателей
+        // Создаём колонки таблиц параметров
         for (let i = 0; i < motorCount; i++) {
             const column = document.createElement('div');
-            column.className = 'motor-column';
+            column.className = 'motor-params';
 
             const table = document.createElement('table');
-            table.className = 'motor-table';
+            table.className = 'param-table';
             table.dataset.index = i;
             motorTables.push(table);
 
@@ -529,7 +548,7 @@
             inputPower.max = 20;
             inputPower.step = 0.1;
             inputPower.value = defaultPower;
-            inputPower.className = 'table-input';
+            inputPower.className = 'param-input';
             powerInputs.push(inputPower);
             cell1.appendChild(inputPower);
             row1.appendChild(cell1);
@@ -544,7 +563,7 @@
             inputKu.max = 1;
             inputKu.step = 0.01;
             inputKu.value = defaultKu;
-            inputKu.className = 'table-input';
+            inputKu.className = 'param-input';
             kuInputs.push(inputKu);
             cell2.appendChild(inputKu);
             row2.appendChild(cell2);
@@ -559,7 +578,7 @@
             inputCos.max = 1;
             inputCos.step = 0.01;
             inputCos.value = defaultCos;
-            inputCos.className = 'table-input';
+            inputCos.className = 'param-input';
             cosInputs.push(inputCos);
             cell3.appendChild(inputCos);
             row3.appendChild(cell3);
@@ -574,7 +593,7 @@
             inputKp.max = 20;
             inputKp.step = 0.1;
             inputKp.value = defaultKp;
-            inputKp.className = 'table-input';
+            inputKp.className = 'param-input';
             kpInputs.push(inputKp);
             cell4.appendChild(inputKp);
             row4.appendChild(cell4);
@@ -582,11 +601,10 @@
 
             column.appendChild(table);
 
-            // Ползунки под таблицей (для всех 4 параметров)
+            // Ползунки под таблицей
             const slidersDiv = document.createElement('div');
             slidersDiv.className = 'sliders-under';
 
-            // Ползунок для мощности
             const sliderPowerDiv = document.createElement('div');
             sliderPowerDiv.className = 'slider-item';
             const sliderPower = document.createElement('input');
@@ -599,7 +617,6 @@
             sliderPowerDiv.appendChild(sliderPower);
             slidersDiv.appendChild(sliderPowerDiv);
 
-            // Ползунок для Kи
             const sliderKuDiv = document.createElement('div');
             sliderKuDiv.className = 'slider-item';
             const sliderKu = document.createElement('input');
@@ -612,7 +629,6 @@
             sliderKuDiv.appendChild(sliderKu);
             slidersDiv.appendChild(sliderKuDiv);
 
-            // Ползунок для cos φ
             const sliderCosDiv = document.createElement('div');
             sliderCosDiv.className = 'slider-item';
             const sliderCos = document.createElement('input');
@@ -625,7 +641,6 @@
             sliderCosDiv.appendChild(sliderCos);
             slidersDiv.appendChild(sliderCosDiv);
 
-            // Ползунок для Kп
             const sliderKpDiv = document.createElement('div');
             sliderKpDiv.className = 'slider-item';
             const sliderKp = document.createElement('input');
@@ -639,79 +654,23 @@
             slidersDiv.appendChild(sliderKpDiv);
 
             column.appendChild(slidersDiv);
-            motorsColumns.appendChild(column);
+            tablesRow.appendChild(column);
         }
 
-        // Создаём кружки
+        // Создаём кружки для схемы
         for (let i = 0; i < motorCount; i++) {
             const motorDiv = document.createElement('div');
             motorDiv.className = 'motor-item';
-
             const circle = document.createElement('div');
             circle.className = 'motor-circle';
             circle.dataset.index = i;
             circle.textContent = `M${i + 1}`;
             motorCircles.push(circle);
-
             motorDiv.appendChild(circle);
             motorsRow.appendChild(motorDiv);
         }
 
-        // Функции для SVG линий
-        function createSvgLine(x1, y1, x2, y2, className) {
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', x1);
-            line.setAttribute('y1', y1);
-            line.setAttribute('x2', x2);
-            line.setAttribute('y2', y2);
-            line.setAttribute('class', className);
-            return line;
-        }
-
-        function drawSchemaLines() {
-            if (!schemaContainer || !schemaSvg || motorCircles.length === 0 || motorTables.length === 0) return;
-            const containerRect = schemaContainer.getBoundingClientRect();
-            const width = schemaContainer.clientWidth;
-            const height = schemaContainer.clientHeight;
-            schemaSvg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-            schemaSvg.setAttribute('width', width);
-            schemaSvg.setAttribute('height', height);
-            schemaSvg.innerHTML = '';
-
-            const circleCenters = motorCircles.map(circle => {
-                const rect = circle.getBoundingClientRect();
-                return {
-                    x: rect.left - containerRect.left + rect.width / 2,
-                    y: rect.top - containerRect.top + rect.height / 2,
-                    bottom: rect.bottom - containerRect.top
-                };
-            });
-
-            const tablePoints = motorTables.map(table => {
-                const rect = table.getBoundingClientRect();
-                return {
-                    x: rect.left - containerRect.left + rect.width / 2,
-                    y: rect.top - containerRect.top
-                };
-            });
-
-            const collectorY = circleCenters.reduce((sum, item) => sum + item.y, 0) / circleCenters.length;
-            const collectorStartX = circleCenters[0].x;
-            const collectorEndX = circleCenters[circleCenters.length - 1].x;
-            const verticalX = (collectorStartX + collectorEndX) / 2;
-            const verticalTopY = 30;
-
-            schemaSvg.appendChild(createSvgLine(collectorStartX, collectorY, collectorEndX, collectorY, 'collector-line'));
-            schemaSvg.appendChild(createSvgLine(verticalX, collectorY, verticalX, verticalTopY, 'vertical-line'));
-
-            for (let i = 0; i < motorCount; i++) {
-                const c = circleCenters[i];
-                const t = tablePoints[i];
-                schemaSvg.appendChild(createSvgLine(c.x, c.bottom, t.x, t.y, 'motor-line'));
-            }
-        }
-
-        // Синхронизация ползунков и инпутов для всех параметров
+        // Синхронизация ползунков и инпутов
         function bindSliderToInput(slider, input) {
             slider.addEventListener('input', function() { input.value = slider.value; });
             input.addEventListener('input', function() {
@@ -813,7 +772,7 @@
             }
         }
 
-        // Сбор данных из таблиц (с защитой от пустых значений)
+        // Сбор данных из таблиц
         function getMotorData() {
             const powers = [];
             const kus = [];
@@ -831,18 +790,20 @@
                 if (ku > 1) ku = 1;
                 kus.push(ku);
 
-                let cosVal = parseFloat(cosInputs[i].value);
-                if (isNaN(cosVal) || cosVal < 0.1 || cosVal > 1) cosVal = 0.5;
-                cosList.push(cosVal);
+                let cos = parseFloat(cosInputs[i].value);
+                if (isNaN(cos) || cos < 0.1) cos = 0.1;
+                if (cos > 1) cos = 1;
+                cosList.push(cos);
 
-                let kpVal = parseFloat(kpInputs[i].value);
-                if (isNaN(kpVal) || kpVal < 1 || kpVal > 20) kpVal = 6.5;
-                kpList.push(kpVal);
+                let kp = parseFloat(kpInputs[i].value);
+                if (isNaN(kp) || kp < 1) kp = 1;
+                if (kp > 20) kp = 20;
+                kpList.push(kp);
             }
             return { powers, kus, cosList, kpList };
         }
 
-        // ---------- Таблицы коэффициентов Kр из РТМ ----------
+        // ---------- Таблицы Kр (из методички) ----------
         const kpTableSupply = {
             1:   [8.00, 5.33, 4.00, 2.67, 2.00, 1.60, 1.33, 1.14, 1.02],
             2:   [6.22, 4.33, 3.39, 2.45, 1.98, 1.60, 1.33, 1.14, 1.03],
@@ -942,7 +903,7 @@
             return row[row.length-1];
         }
 
-        // ---------- Основной расчёт ----------
+        // Основной расчёт
         function calculate() {
             const { powers, kus, cosList, kpList } = getMotorData();
             const networkType = document.querySelector('input[name="networkType"]:checked').value;
@@ -1027,6 +988,54 @@
             return { sumPn, sumKuPn, Pp, Qp, Sp, Ip, Ipeak };
         }
 
+        // Функции для рисования линий SVG
+        function createSvgLine(x1, y1, x2, y2, className) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
+            line.setAttribute('class', className);
+            return line;
+        }
+
+        function drawSchemaLines() {
+            if (!schemaContainer || !schemaSvg || motorCircles.length === 0) return;
+            const containerRect = schemaContainer.getBoundingClientRect();
+            const width = schemaContainer.clientWidth;
+            const height = schemaContainer.clientHeight;
+            schemaSvg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            schemaSvg.setAttribute('width', width);
+            schemaSvg.setAttribute('height', height);
+            schemaSvg.innerHTML = '';
+
+            const circleCenters = motorCircles.map(circle => {
+                const rect = circle.getBoundingClientRect();
+                return {
+                    x: rect.left - containerRect.left + rect.width / 2,
+                    y: rect.top - containerRect.top + rect.height / 2,
+                    bottom: rect.bottom - containerRect.top
+                };
+            });
+
+            // Находим нижние точки кружков для линий к шине
+            const bottomPoints = circleCenters.map(c => c.bottom);
+            const collectorY = bottomPoints.reduce((a,b) => a + b, 0) / bottomPoints.length;
+            const collectorStartX = circleCenters[0].x;
+            const collectorEndX = circleCenters[circleCenters.length - 1].x;
+            const verticalX = (collectorStartX + collectorEndX) / 2;
+            const verticalTopY = 30;
+
+            schemaSvg.appendChild(createSvgLine(collectorStartX, collectorY, collectorEndX, collectorY, 'collector-line'));
+            schemaSvg.appendChild(createSvgLine(verticalX, collectorY, verticalX, verticalTopY, 'vertical-line'));
+
+            for (let i = 0; i < motorCount; i++) {
+                const c = circleCenters[i];
+                // Линия от низа кружка к шине
+                schemaSvg.appendChild(createSvgLine(c.x, c.bottom, c.x, collectorY, 'motor-line'));
+            }
+        }
+
         const lineIp = document.getElementById('lineIp');
         const lineIpeak = document.getElementById('lineIpeak');
 
@@ -1050,7 +1059,7 @@
 
         document.getElementById('calculateBtn').addEventListener('click', updateResults);
 
-        // Перерисовка линий
+        // Перерисовка линий при изменении размеров
         function scheduleDrawSchemaLines() {
             requestAnimationFrame(drawSchemaLines);
         }
@@ -1059,7 +1068,6 @@
         if (typeof ResizeObserver !== 'undefined') {
             const resizeObserver = new ResizeObserver(scheduleDrawSchemaLines);
             resizeObserver.observe(schemaContainer);
-            resizeObserver.observe(motorsColumns);
             resizeObserver.observe(motorsRow);
         }
 
