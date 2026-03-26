@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Расчёт токов по РТМ 36.18.32.4-92 (расширенные результаты)</title>
+    <title>Расчёт токов по РТМ 36.18.32.4-92 (Qр для работающих)</title>
     <style>
         * {
             box-sizing: border-box;
@@ -422,7 +422,7 @@
 <body>
 <div class="card">
     <h1>⚡ Расчёт токов по РТМ 36.18.32.4-92 ⚡</h1>
-    <div class="subtitle">Результаты для всех двигателей и только работающих</div>
+    <div class="subtitle">Отображение реактивной мощности для всех и работающих</div>
 
     <div class="bars-container">
         <div class="bar-wrapper"><div class="bar-label">I<sub>зад</sub></div><div class="bar" id="barZad" style="height:8px;"></div><div class="bar-value" id="barZadValue">0.1 <span class="bar-unit">А</span></div></div>
@@ -478,15 +478,18 @@
         <div class="result-item"><span class="label">Q<sub>р</sub> (все)</span><span class="value" id="qpAll">0</span><span class="unit">квар</span></div>
         <div class="result-item"><span class="label">S<sub>р</sub> (все)</span><span class="value" id="spAll">0</span><span class="unit">кВА</span></div>
         <div class="result-item"><span class="label">I<sub>р</sub> (все)</span><span class="value" id="ipAll">0</span><span class="unit">А</span></div>
-        <div class="result-item"><span class="label">P<sub>р</sub> (работающие)</span><span class="value" id="ppRun">0</span><span class="unit">кВт</span></div>
-        <div class="result-item"><span class="label">I<sub>р</sub> (работающие)</span><span class="value" id="ipRun">0</span><span class="unit">А</span></div>
+        <div class="result-item"><span class="label">P<sub>р</sub> (раб)</span><span class="value" id="ppRun">0</span><span class="unit">кВт</span></div>
+        <div class="result-item"><span class="label">Q<sub>р</sub> (раб)</span><span class="value" id="qpRun">0</span><span class="unit">квар</span></div>
+        <div class="result-item"><span class="label">S<sub>р</sub> (раб)</span><span class="value" id="spRun">0</span><span class="unit">кВА</span></div>
+        <div class="result-item"><span class="label">I<sub>р</sub> (раб)</span><span class="value" id="ipRun">0</span><span class="unit">А</span></div>
         <div class="result-item"><span class="label">I<sub>пик</sub></span><span class="value" id="ipeak">0</span><span class="unit">А</span></div>
     </div>
 
     <div class="note">
-        ⚙️ "Все" – расчётный ток по всем невыключенным двигателям (работающие + пусковые).<br>
-        "Работающие" – расчётный ток только работающих двигателей (используется для пикового тока).<br>
-        Пиковый ток = сумма пусковых токов + Iр(работающие).
+        ⚙️ "все" – расчёт по всем невыключенным двигателям (работающие + пусковые).<br>
+        "раб" – расчёт только по работающим двигателям (используется для пикового тока).<br>
+        Пиковый ток = сумма пусковых токов + Iр(раб).<br>
+        Qр(раб) позволяет видеть изменение реактивной мощности при переходе двигателей в режим пуска.
     </div>
 </div>
 
@@ -900,7 +903,7 @@
             return row[row.length-1];
         }
 
-        // Основной расчёт (расширенный)
+        // Основной расчёт (расширенный с Qр для работающих)
         function calculate() {
             const motors = getMotorData();
             const networkType = document.querySelector('input[name="networkType"]:checked').value;
@@ -913,10 +916,10 @@
 
             if (all.length === 0) {
                 alert('Нет включённых двигателей для расчёта!');
-                return { PpAll:0, QpAll:0, SpAll:0, IpAll:0, PpRun:0, IpRun:0, Ipeak:0 };
+                return { PpAll:0, QpAll:0, SpAll:0, IpAll:0, PpRun:0, QpRun:0, SpRun:0, IpRun:0, Ipeak:0 };
             }
 
-            // ---- 1. Расчёт Iр по всем включённым (all) ----
+            // ---- 1. Расчёт по всем включённым (all) ----
             let sumPnAll = 0;
             let sumKuPnAll = 0;
             let sumKuPnTgAll = 0;
@@ -965,9 +968,8 @@
             const SpAll = Math.sqrt(PpAll * PpAll + QpAll * QpAll);
             const IpAll = SpAll / (Math.sqrt(3) * U);
 
-            // ---- 2. Расчёт Iр для работающих (running) - для пикового тока ----
+            // ---- 2. Расчёт по работающим (running) ----
             if (running.length === 0) {
-                // Если работающих нет, то Iпик = сумма пусковых
                 let sumIstart = 0;
                 for (const m of starting) {
                     const Inom = m.p / (Math.sqrt(3) * U * m.cos);
@@ -975,7 +977,7 @@
                     sumIstart += Istart;
                 }
                 const Ipeak = sumIstart;
-                return { PpAll, QpAll, SpAll, IpAll, PpRun:0, IpRun:0, Ipeak };
+                return { PpAll, QpAll, SpAll, IpAll, PpRun:0, QpRun:0, SpRun:0, IpRun:0, Ipeak };
             }
 
             let sumPnRun = 0;
@@ -1036,7 +1038,7 @@
 
             const Ipeak = sumIstart + IpRun;
 
-            return { PpAll, QpAll, SpAll, IpAll, PpRun, IpRun, Ipeak };
+            return { PpAll, QpAll, SpAll, IpAll, PpRun, QpRun, SpRun, IpRun, Ipeak };
         }
 
         // Рисование линий
@@ -1101,6 +1103,8 @@
             document.getElementById('spAll').innerText = res.SpAll.toFixed(2);
             document.getElementById('ipAll').innerText = res.IpAll.toFixed(2);
             document.getElementById('ppRun').innerText = res.PpRun.toFixed(2);
+            document.getElementById('qpRun').innerText = res.QpRun.toFixed(2);
+            document.getElementById('spRun').innerText = res.SpRun.toFixed(2);
             document.getElementById('ipRun').innerText = res.IpRun.toFixed(2);
             document.getElementById('ipeak').innerText = res.Ipeak.toFixed(2);
 
